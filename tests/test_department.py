@@ -14,12 +14,16 @@ def valid_employee_kwargs():
         address="123 Lane, Town, County",
     )
 
+example_dep = Department("test","testDes",Employee(**valid_employee_kwargs()))
+
 def valid_department_kwargs():
     return dict(
         name="Finance",
         description = "It's where the money is",
-        head_of_department = Employee(**valid_employee_kwargs())
+        head_of_department = Employee(**valid_employee_kwargs()),
+        parent_department = example_dep
     )
+
 
 class TestDepartmentCreation:
     def test_department_can_be_created(self):
@@ -31,6 +35,7 @@ class TestDepartmentCreation:
         assert dep.head_of_department.start_date == date(2024,10,2)
         assert dep.head_of_department.salary == 30000
         assert dep.head_of_department.address == "123 Lane, Town, County"
+        assert dep.parent_department == example_dep
     def test_department_id_created(self):
         with patch("employee_tracker.domain.department.new_id", return_value="dep") as mock_new_id:
             dep = Department(**valid_department_kwargs())

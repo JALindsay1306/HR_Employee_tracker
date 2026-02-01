@@ -1,5 +1,6 @@
 import pytest
 from employee_tracker.utils.ids import new_id, check_id
+from employee_tracker.utils.value_checkers import check_new_value
 
 class TestIDCreation:
     def test_id_prefix_used(self):
@@ -47,4 +48,13 @@ class TestIDChecker:
         id_split[1] = suffix[0:2] + "Z" + suffix[3:]
         id = "_".join(id_split)
         assert check_id(id,"test") is False
-        
+
+class TestCheckNewValue:
+    def test_correct_new_value_passes(self):
+        assert check_new_value("Jim","name",str,"John")
+    def test_wrong_type_fails(self):
+        with pytest.raises(TypeError, match = "name must be a <class 'str'>"):
+            check_new_value(123,"name",str)
+    def test_duplicate_value_fails(self):
+        with pytest.raises(ValueError, match = "New salary must be different to existing salary"):
+            check_new_value(50000,"salary",int,50000)
