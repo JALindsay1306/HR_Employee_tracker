@@ -37,7 +37,7 @@ class TestPermissionTypeValidation:
         "field,value,error",
         [
             ("name", 123, "Name must be a string"),
-            ("department", "finance", "department must be a valid department or all"),
+            ("department", 3.45, "department must be a str"),
         ],
      )
      def test_invalid_datatypes(self, field, value, error):

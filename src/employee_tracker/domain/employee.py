@@ -10,6 +10,8 @@ class Employee:
             raise TypeError("Name must be a string")
         if not isinstance(role,str):
             raise TypeError("Role must be a string")
+        if not isinstance(start_date,date):
+            raise TypeError("start_date must be a date")
         if not isinstance(salary,int):
             raise TypeError("Salary must be an integer")
         if not isinstance(address,str):

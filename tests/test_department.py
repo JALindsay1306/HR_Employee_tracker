@@ -14,14 +14,16 @@ def valid_employee_kwargs():
         address="123 Lane, Town, County",
     )
 
-example_dep = Department("test","testDes",Employee(**valid_employee_kwargs()))
+example_dep = Department("test","testDes",Employee(**valid_employee_kwargs()).id)
+
+employee_to_use = Employee(**valid_employee_kwargs())
 
 def valid_department_kwargs():
     return dict(
         name="Finance",
         description = "It's where the money is",
-        head_of_department = Employee(**valid_employee_kwargs()),
-        parent_department = example_dep
+        head_of_department = employee_to_use.id,
+        parent_department = example_dep.id
     )
 
 
@@ -30,12 +32,8 @@ class TestDepartmentCreation:
         dep = Department(**valid_department_kwargs())
         assert dep.name == "Finance"
         assert dep.description == "It's where the money is"
-        assert dep.head_of_department.name == "James"
-        assert dep.head_of_department.role == "Creator"
-        assert dep.head_of_department.start_date == date(2024,10,2)
-        assert dep.head_of_department.salary == 30000
-        assert dep.head_of_department.address == "123 Lane, Town, County"
-        assert dep.parent_department == example_dep
+        assert dep.head_of_department == employee_to_use.id
+        assert dep.parent_department == example_dep.id
     def test_department_id_created(self):
         with patch("employee_tracker.domain.department.new_id", return_value="dep") as mock_new_id:
             dep = Department(**valid_department_kwargs())
@@ -49,7 +47,8 @@ class TestDepartmentTypeValidations:
         [
             ("name", 123, "Name must be a string"),
             ("description", True, "Description must be a string"),
-            ("head_of_department", "James", "Head of department must be a valid Employee object"),
+            ("head_of_department", 123, "Head of department must be a string"),
+            ("parent_department",False, "Parent Department must be a str or none")
         ],
     )
     def test_invalid_datatypes(self, field, value, error):
