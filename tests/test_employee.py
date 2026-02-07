@@ -5,6 +5,7 @@ from datetime import date
 from employee_tracker.domain.employee import Employee
 from employee_tracker.utils.value_checkers import check_new_value
 from employee_tracker.domain.permission import Permission
+from employee_tracker.utils.ids import check_id
 
 
 def valid_employee_kwargs():
@@ -34,9 +35,9 @@ class TestEmployeeCreation:
     def test_new_employee_is_enabled(self):
         emp = Employee(**valid_employee_kwargs())
         assert emp.enabled == True
-    def test_new_employee_has_no_permissions(self):
+    def test_new_employee_permissions_is_empty(self):
         emp = Employee(**valid_employee_kwargs())
-        assert emp.permissions == None
+        assert emp.permissions == []
 
 class TestEmployeeTypeValidation:
     @pytest.mark.parametrize(
@@ -230,3 +231,51 @@ class TestWipePermissions:
         emp = Employee(**valid_employee_kwargs())
         with pytest.raises(ValueError, match = "no permissions to wipe"):
             emp.wipe_permissions()
+
+class TestStoragePreparation:
+    def test_employee_has_to_row_method(self):
+        assert hasattr(Employee,"to_row")
+    def test_to_row_method_returns_dict(self):
+        emp1 = Employee(**valid_employee_kwargs())
+        assert isinstance(emp1.to_row(),dict)
+    def test_to_row_method_has_all_attrs(self):
+        emp1 = Employee(**valid_employee_kwargs())
+        emp1_row = emp1.to_row()
+        expected_keys = {
+        "id", 
+        "name", 
+        "role", 
+        "start_date",
+        "salary", 
+        "address", 
+        "permissions"
+        }
+
+        assert expected_keys.issubset(emp1_row.keys())
+    def test_values_are_correct(self):
+        emp1 = Employee(**valid_employee_kwargs())
+
+        emp1_row = emp1.to_row()
+        assert check_id(emp1_row.pop("id"), "emp")
+
+        expected = {
+            "name": "James",
+            "role": "Creator",
+            "start_date": date(2024, 10, 2),
+            "salary": 30000,
+            "address": "123 Lane, Town, County",
+            "permissions": " ".join(emp1.permissions),
+        }
+        assert emp1_row == expected
+    def test_permissions_are_space_separated(self):
+        emp1 = Employee(**valid_employee_kwargs())
+        per1 = Permission("per_1")
+        per2 = Permission("per_2")
+        per3 = Permission("per_3")
+        emp1.add_permission(per1)
+        emp1.add_permission(per2)
+        emp1.add_permission(per3)
+        emp1_row = emp1.to_row()
+        assert emp1_row["permissions"] == f"{per1.name} {per2.name} {per3.name}"
+        permissions = emp1_row["permissions"].split(" ")
+        assert permissions == [per1.name,per2.name,per3.name]

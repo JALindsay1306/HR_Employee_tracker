@@ -2,6 +2,7 @@ from employee_tracker.domain.employee import Employee
 from employee_tracker.domain.department import Department
 from employee_tracker.domain.permission import Permission
 from employee_tracker.utils.ids import check_id
+from employee_tracker.utils.filtering import filter_list
 
 class Tracker:
     def __init__(self):
@@ -19,6 +20,12 @@ class Tracker:
         emp = Employee(name,role,start_date,salary,address,permissions)
         self.employees[emp.id] = emp
         return emp
+    def list_employees(self,name_search=None,role_search=None,min_date=None,max_date=None,min_salary=None,max_salary=None,permissions=None):
+        employee_list = list(self.employees.values())
+        for key,value in {name_search:["name","string"],role_search:["role","string"],min_date:["start_date","min"],max_date:["start_date","max"],min_salary:["salary","min"],max_salary:["salary","max"]}.items():
+            if key !=None:
+                employee_list = filter_list(employee_list,value[0],key,value[1])   
+        return employee_list
     def create_department(self,name,description,head_of_department,parent_department=None,members=None):
         if not check_id(head_of_department,"emp"):
             raise TypeError("head_of_department must be a valid employee id")

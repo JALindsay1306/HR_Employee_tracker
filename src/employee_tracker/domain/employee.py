@@ -20,7 +20,7 @@ class Employee:
         self.name = name
         self.role = role
         self.start_date = start_date
-        self.permissions = permissions
+        self.permissions = permissions or []
         self.salary = salary
         self.address = address
         self.enabled = True
@@ -67,3 +67,13 @@ class Employee:
             raise ValueError("no permissions to wipe")
         else:
             self.permissions = []
+    def to_row(self):
+        return {
+            "id":self.id,
+            "name":self.name,
+            "role":self.role,
+            "start_date":self.start_date,
+            "salary":self.salary,
+            "address":self.address,
+            "permissions":" ".join(self.permissions) 
+        }
