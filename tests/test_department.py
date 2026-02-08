@@ -254,3 +254,17 @@ class TestSetParentDepartment:
         dep2.id = "BadID"
         with pytest.raises(ValueError,match="invalid ID"):
              dep1.set_parent_department(dep2)
+class TestRemoveParentDepartment:
+    def test_department_has_remove_parent_department_method(self):
+        assert hasattr(Department,"remove_parent_department")
+    def test_remove_parent_department_removes_parent_department(self):
+        dep1 = Department(**valid_department_kwargs())
+        dep2 = Department(**valid_department_kwargs())
+        dep1.set_parent_department(dep2)
+        dep1.remove_parent_department()
+        assert dep1.parent_department == None
+    def test_raises_error_when_no_parent_department(self):
+        dep1 = Department(**valid_department_kwargs())
+        dep1.remove_parent_department()
+        with pytest.raises(ValueError,match=f"{dep1.name} has no parent department to remove"):
+            dep1.remove_parent_department()

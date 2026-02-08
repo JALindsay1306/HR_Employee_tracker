@@ -64,8 +64,9 @@ class Department:
             raise ValueError("invalid ID")
         elif new_dep.id == self.parent_department:
             raise ValueError(f"{new_dep.name} ({new_dep.id}) is already the parent department")
-        self.parent_department = new_dep.id
-    def change_parent_department(self):
-        pass
+        else:
+            self.parent_department = new_dep.id
     def remove_parent_department(self):
-        pass
+        if self.parent_department == None:
+            raise ValueError(f"{self.name} has no parent department to remove")
+        self.parent_department = None
