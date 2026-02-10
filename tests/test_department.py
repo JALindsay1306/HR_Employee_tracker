@@ -268,3 +268,55 @@ class TestRemoveParentDepartment:
         dep1.remove_parent_department()
         with pytest.raises(ValueError,match=f"{dep1.name} has no parent department to remove"):
             dep1.remove_parent_department()
+    
+class TestStoragePreparation:
+    def test_department_has_to_row_method(self):
+        assert hasattr(Department,"to_row")
+    def test_to_row_method_returns_dict(self):
+        dep1 = Department(**valid_department_kwargs())
+        assert isinstance(dep1.to_row(),dict)
+    def test_to_row_method_has_all_attrs(self):
+        dep1 = Department(**valid_department_kwargs())
+        dep1_row = dep1.to_row()
+        expected_keys = {
+        "id", 
+        "name", 
+        "description", 
+        "head_of_department",
+        "parent_department", 
+        "members"
+        }
+
+        assert expected_keys.issubset(dep1_row.keys())
+    def test_values_are_correct(self):
+        dep1 = Department(**valid_department_kwargs())
+        emp1 = Employee(**valid_employee_kwargs())
+        emp2 = Employee(**valid_employee_kwargs())
+        emp3 = Employee(**valid_employee_kwargs())
+        dep1.add_employee(emp1)
+        dep1.add_employee(emp2)
+        dep1.add_employee(emp3)
+
+        dep1_row = dep1.to_row()
+        assert check_id(dep1_row.pop("id"), "dep")
+
+        expected = {
+            "name":"Finance",
+            "description" : "It's where the money is",
+            "head_of_department" : employee_to_use.id,
+            "parent_department" : example_dep.id,
+            "members": " ".join([emp1.id,emp2.id,emp3.id]),
+        }
+        assert dep1_row == expected
+    def test_members_are_space_separated(self):
+        dep1 = Department(**valid_department_kwargs())
+        emp1 = Employee(**valid_employee_kwargs())
+        emp2 = Employee(**valid_employee_kwargs())
+        emp3 = Employee(**valid_employee_kwargs())
+        dep1.add_employee(emp1)
+        dep1.add_employee(emp2)
+        dep1.add_employee(emp3)
+        dep1_row = dep1.to_row()
+        assert dep1_row["members"] == f"{emp1.id} {emp2.id} {emp3.id}"
+        members = dep1_row["members"].split(" ")
+        assert members == [emp1.id,emp2.id,emp3.id]    

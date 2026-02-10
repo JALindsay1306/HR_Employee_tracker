@@ -29,3 +29,8 @@ class Permission:
         if self.department == None:
             raise ValueError("no department to remove")
         self.department = None
+    def to_row(self):
+        return {
+            "name":self.name,
+            "department":self.department 
+        }

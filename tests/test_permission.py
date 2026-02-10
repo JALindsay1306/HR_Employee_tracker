@@ -117,3 +117,31 @@ class TestRemoveDepartment:
         per1 = Permission(**valid_permission_kwargs())
         with pytest.raises(ValueError,match="no department to remove"):
             per1.remove_department()
+
+class TestStoragePreparation:
+    def test_permission_has_to_row_method(self):
+        assert hasattr(Permission,"to_row")
+    def test_to_row_method_returns_dict(self):
+        per1 = Permission(**valid_permission_kwargs())
+        assert isinstance(per1.to_row(),dict)
+    def test_to_row_method_has_all_attrs(self):
+        per1 = Permission(**valid_permission_kwargs())
+        per1_row = per1.to_row()
+        expected_keys = { 
+        "name", 
+        "department"
+        }
+
+        assert expected_keys.issubset(per1_row.keys())
+    def test_values_are_correct(self):
+        per1 = Permission(**valid_permission_kwargs())
+        dep1 = Department(**valid_department_kwargs())
+        per1.add_department(dep1)
+
+        per1_row = per1.to_row()
+
+        expected = {
+            "name": "per_1",
+            "department": dep1.id
+        }
+        assert per1_row == expected

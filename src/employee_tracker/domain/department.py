@@ -70,3 +70,12 @@ class Department:
         if self.parent_department == None:
             raise ValueError(f"{self.name} has no parent department to remove")
         self.parent_department = None
+    def to_row(self):
+        return {
+            "id":self.id,
+            "name":self.name,
+            "description":self.description,
+            "head_of_department":self.head_of_department,
+            "parent_department":self.parent_department,
+            "members":" ".join(self.members) 
+        }

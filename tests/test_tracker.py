@@ -76,8 +76,8 @@ class TestCreateEmployeeTypeValidation:
             ("start_date","today","start_date must be a date"),
             ("salary","a lot","Salary must be an integer"),
             ("address",43212,"Address must be a string"),
-            ("permissions", "All","permissions must be a list of permission ids"),
-            ("permissions", ["33"],"permissions in list must be valid permission ids")
+            ("permissions", "All","permissions must be a list of permission names"),
+            ("permissions", ["33"],"permissions in list must be valid permission names")
 
         ],
      )
@@ -209,6 +209,7 @@ class TestListEmployees:
         employee_list = trk.list_employees(max_salary=50000)
         assert len(employee_list) == 1
         assert employee_list[0].salary == 40000
+
 class TestCreateDepartment:
     def test_tracker_has_create_department_method(self):
         assert hasattr(Tracker,"create_department")
@@ -259,6 +260,105 @@ class TestCreateDepartmentTypeValidation:
         with pytest.raises(TypeError, match=error):
             trk.create_department(**kwargs)
 
+class TestListDepartments:
+    def test_tracker_has_list_departments_method(self):
+        assert hasattr(Tracker,"list_departments")
+    def test_list_departments_returns_list(self):
+        trk = Tracker()
+        kwargs = valid_department_kwargs()
+        trk.create_department(**kwargs)
+        trk.create_department(**kwargs)
+        trk.create_department(**kwargs)
+        trk.create_department(**kwargs)
+        department_list = trk.list_departments()
+        assert isinstance(department_list,list)
+    def test_list_departments_returns_all_departments_when_called_with_no_arguments(self):
+        trk = Tracker()
+        kwargs = valid_department_kwargs()
+        trk.create_department(**kwargs)
+        trk.create_department(**kwargs)
+        trk.create_department(**kwargs)
+        trk.create_department(**kwargs)
+        department_list = trk.list_departments()
+        assert len(department_list) == 4
+        for department in department_list:
+            assert isinstance(department,Department)
+    def test_returned_departments_are_correct(self):
+        trk = Tracker()
+        kwargs = valid_department_kwargs()
+        dep_1 = trk.create_department(**kwargs)
+        dep_2 = trk.create_department(**kwargs)
+        dep_3 = trk.create_department(**kwargs)
+        dep_4 = trk.create_department(**kwargs)
+        department_list = trk.list_departments()
+        assert dep_1.id == department_list[0].id
+        assert dep_2.name == department_list[0].name
+        assert dep_3.description == department_list[0].description
+        assert dep_4.head_of_department == department_list[0].head_of_department
+    def test_can_search_by_name(self):
+        trk = Tracker()
+        kwargs = valid_department_kwargs()
+        dep_1 = trk.create_department(**kwargs)
+        trk.departments[dep_1.id].name = "IT"
+        dep_2 = trk.create_department(**kwargs)
+        trk.departments[dep_2.id].name = "New IT"
+        dep_3 = trk.create_department(**kwargs)
+        trk.departments[dep_3.id].name = "Shipping"
+        dep_4 = trk.create_department(**kwargs)
+        trk.departments[dep_4.id].name = "Board"
+        department_list = trk.list_departments(name_search="IT")
+        assert len(department_list) == 2
+        assert department_list[0].name == "IT" and department_list[1].name == "New IT"
+    def test_can_search_by_description(self):
+        trk = Tracker()
+        kwargs = valid_department_kwargs()
+        dep_1 = trk.create_department(**kwargs)
+        trk.departments[dep_1.id].description = "Make computers work"
+        dep_2 = trk.create_department(**kwargs)
+        trk.departments[dep_2.id].descripton = "More complex"
+        dep_3 = trk.create_department(**kwargs)
+        trk.departments[dep_3.id].description = "Move stuff"
+        dep_4 = trk.create_department(**kwargs)
+        trk.departments[dep_4.id].description = "Don't really work"
+        department_list = trk.list_departments(description_search="work")
+        assert len(department_list) == 2
+        assert department_list[0].description == "Make computers work" and department_list[1].description == "Don't really work"
+    def test_can_search_by_head_of_department(self):
+        trk = Tracker()
+        ekwargs = valid_employee_kwargs()
+        dkwargs = valid_department_kwargs()
+        emp_1 = trk.create_employee(**ekwargs)
+        emp_2 = trk.create_employee(**ekwargs)
+        emp_3 = trk.create_employee(**ekwargs)
+        emp_4 = trk.create_employee(**ekwargs)
+
+        dep_1 = trk.create_department(**dkwargs)
+        trk.departments[dep_1.id].change_head_of_department(emp_1)
+        dep_2 = trk.create_department(**dkwargs)
+        trk.departments[dep_2.id].change_head_of_department(emp_2)
+        dep_3 = trk.create_department(**dkwargs)
+        trk.departments[dep_3.id].change_head_of_department(emp_3)
+        dep_4 = trk.create_department(**dkwargs)
+        trk.departments[dep_4.id].change_head_of_department(emp_4)
+        department_list = trk.list_departments(head_of_department_search=emp_2.id)
+        assert len(department_list) == 1
+        assert department_list[0].head_of_department == emp_2.id
+    def test_can_search_by_parent_department(self):
+        trk = Tracker()
+        kwargs = valid_department_kwargs()
+        dep_1 = trk.create_department(**kwargs)
+        dep_2 = trk.create_department(**kwargs)
+        dep_3 = trk.create_department(**kwargs)
+        dep_4 = trk.create_department(**kwargs)
+        
+        trk.departments[dep_1.id].set_parent_department(dep_2)
+        trk.departments[dep_2.id].set_parent_department(dep_3)
+        trk.departments[dep_3.id].set_parent_department(dep_4)
+        trk.departments[dep_4.id].set_parent_department(dep_2)
+        department_list = trk.list_departments(parent_department_search=dep_2.id)
+        assert len(department_list) == 2
+        assert department_list[0].parent_department == dep_2.id and department_list[1].parent_department == dep_2.id
+        
 class TestCreatePermission:
     def test_tracker_has_create_permission_method(self):
         assert hasattr(Tracker,"create_permission")
