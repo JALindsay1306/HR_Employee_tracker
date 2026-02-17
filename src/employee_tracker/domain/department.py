@@ -4,7 +4,7 @@ from employee_tracker.utils.ids import new_id
 from employee_tracker.utils.ids import check_id
 
 class Department:
-    def __init__(self, name, description, head_of_department, parent_department = None, members = None):
+    def __init__(self, name, description, head_of_department, parent_department = None, members = None,id = None):
         if not isinstance(name,str):
             raise TypeError("Name must be a string")
         if not isinstance(description,str):
@@ -13,7 +13,14 @@ class Department:
             raise TypeError("Head of department must be a string")
         if not isinstance(parent_department,str) and parent_department != None:
             raise TypeError("Parent Department must be a str or none")
-        self.id = new_id("dep")
+        if id == None:
+            self.id = new_id("dep")
+            
+        else:
+            if check_id(id,"dep"):
+                self.id = id
+            else:
+                raise TypeError("Invalid ID")
         self.name = name
         self.description = description
         self.head_of_department = head_of_department
@@ -79,3 +86,17 @@ class Department:
             "parent_department":self.parent_department,
             "members":" ".join(self.members) 
         }
+    @classmethod
+    def from_row(cls, row: dict) -> "Department":
+        
+        mems = row.get("members", "")
+        members = mems.split() if mems else []
+
+        return cls(
+            id=row["id"],
+            name=row["name"],
+            description=row["description"],
+            head_of_department=row["head_of_department"],
+            parent_department=row["parent_department"],
+            members=members,
+        )

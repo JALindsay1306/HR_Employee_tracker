@@ -27,6 +27,18 @@ def valid_department_kwargs():
         parent_department = example_dep.id
     )
 
+def make_row(**overrides):
+    # A baseline "row" like you'd get from df.to_dict(orient="records")
+        base = {
+            "id": "dep_1234abcd",
+            "name": "Finance",
+            "description": "Moneymoneymoney",
+            "head_of_department": employee_to_use.id,
+            "parent_department" : example_dep.id,
+            "members" : employee_to_use.id,
+        }
+        base.update(overrides)
+        return base
 
 class TestDepartmentCreation:
     def test_department_can_be_created(self):
@@ -40,7 +52,15 @@ class TestDepartmentCreation:
             dep = Department(**valid_department_kwargs())
 
             mock_new_id.assert_called_once_with("dep")
-            assert dep.id.startswith("dep")    
+            assert dep.id.startswith("dep")
+    def test_department_accepts_existing_id(self):
+        dep = Department(
+            name="Finance",
+            description="MoneyMoneyMoney",
+            head_of_department="emp_12345678",
+            id= "dep_12345678"
+        )
+        assert dep.id == "dep_12345678"    
 
 class TestDepartmentTypeValidations:
     @pytest.mark.parametrize(
@@ -49,7 +69,8 @@ class TestDepartmentTypeValidations:
             ("name", 123, "Name must be a string"),
             ("description", True, "Description must be a string"),
             ("head_of_department", 123, "Head of department must be a string"),
-            ("parent_department",False, "Parent Department must be a str or none")
+            ("parent_department",False, "Parent Department must be a str or none"),
+            ("id","dep_KKAS","Invalid ID")
         ],
     )
     def test_invalid_datatypes(self, field, value, error):
@@ -320,3 +341,24 @@ class TestStoragePreparation:
         assert dep1_row["members"] == f"{emp1.id} {emp2.id} {emp3.id}"
         members = dep1_row["members"].split(" ")
         assert members == [emp1.id,emp2.id,emp3.id]    
+
+class TestReturnFromStorage:
+    def test_department_has_from_row_method(self):
+        assert hasattr(Department,"from_row")
+    def test_from_row_preserves_id(self):
+        row = make_row(id="dep_deadbeef")
+        dep = Department.from_row(row)
+        assert dep.id == "dep_deadbeef"
+    def test_from_row_parses_members_string_to_list(self):
+        row = make_row(members="emp_12345678 emp_23456789 emp_45678965")
+        dep = Department.from_row(row)
+        assert dep.members == ["emp_12345678", "emp_23456789", "emp_45678965"]
+    def test_from_row_empty_members_becomes_empty_list(self):
+        row = make_row(members="")
+        dep = Department.from_row(row)
+        assert dep.members == []
+    def test_from_row_missing_members_defaults_to_empty_list(self):
+        row = make_row()
+        row.pop("members")
+        dep = Department.from_row(row)
+        assert dep.members == []

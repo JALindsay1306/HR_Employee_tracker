@@ -2,10 +2,11 @@ from dataclasses import dataclass
 from datetime import date
 from employee_tracker.utils.ids import new_id
 from employee_tracker.utils.value_checkers import check_new_value
-
+from employee_tracker.utils.ids import check_id
+import pandas as pd
 
 class Employee:
-    def __init__(self,name,role, start_date,salary,address,permissions = None):
+    def __init__(self,name,role, start_date,salary,address,permissions = None,id = None ):
         if not isinstance(name,str):
             raise TypeError("Name must be a string")
         if not isinstance(role,str):
@@ -16,7 +17,14 @@ class Employee:
             raise TypeError("Salary must be an integer")
         if not isinstance(address,str):
             raise TypeError("Address must be a string")
-        self.id = new_id("emp")
+        if id == None:
+            self.id = new_id("emp")
+            
+        else:
+            if check_id(id,"emp"):
+                self.id = id
+            else:
+                raise TypeError("Invalid ID")
         self.name = name
         self.role = role
         self.start_date = start_date
@@ -77,3 +85,21 @@ class Employee:
             "address":self.address,
             "permissions":" ".join(self.permissions) 
         }
+    @classmethod
+    def from_row(cls, row: dict) -> "Employee":
+        start_date = row["start_date"]
+        if isinstance(start_date, pd.Timestamp):
+            start_date = start_date.date()
+
+        perms = row.get("permissions", "")
+        permissions = perms.split() if perms else []
+
+        return cls(
+            id=row["id"],
+            name=row["name"],
+            role=row["role"],
+            start_date=start_date,
+            salary=int(row["salary"]),
+            address=row["address"],
+            permissions=permissions,
+        )

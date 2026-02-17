@@ -1,6 +1,7 @@
 import pytest
 from unittest.mock import patch
 from datetime import date
+import pandas as pd
 
 from employee_tracker.domain.employee import Employee
 from employee_tracker.utils.value_checkers import check_new_value
@@ -16,6 +17,19 @@ def valid_employee_kwargs():
         salary=30000,
         address="123 Lane, Town, County",
     )
+def make_row(**overrides):
+    # A baseline "row" like you'd get from df.to_dict(orient="records")
+        base = {
+            "id": "emp_1234abcd",
+            "name": "James",
+            "role": "Creator",
+            "start_date": pd.Timestamp("2024-10-02"),
+            "salary": 30000,
+            "address": "123 Lane, Town, County",
+            "permissions": "READ WRITE",
+        }
+        base.update(overrides)
+        return base
 
 class TestEmployeeCreation:
     def test_employee_can_be_created(self):
@@ -38,6 +52,16 @@ class TestEmployeeCreation:
     def test_new_employee_permissions_is_empty(self):
         emp = Employee(**valid_employee_kwargs())
         assert emp.permissions == []
+    def test_employee_accepts_existing_id(self):
+        emp = Employee(
+            name="James",
+            role="Me",
+            start_date=date(2023,12,12),
+            salary=12345,
+            address="An Address",
+            id= "emp_12345678"
+        )
+        assert emp.id == "emp_12345678"
 
 class TestEmployeeTypeValidation:
     @pytest.mark.parametrize(
@@ -46,7 +70,8 @@ class TestEmployeeTypeValidation:
             ("name", 123, "Name must be a string"),
             ("role", True, "Role must be a string"),
             ("salary", "money", "Salary must be an integer"),
-            ("address", None, "Address must be a string"),
+            ("address", None, "Address must be a string"),#
+            ("id","emp_KKAS","Invalid ID")
         ],
     )
     def test_invalid_datatypes(self, field, value, error):
@@ -279,3 +304,33 @@ class TestStoragePreparation:
         assert emp1_row["permissions"] == f"{per1.name} {per2.name} {per3.name}"
         permissions = emp1_row["permissions"].split(" ")
         assert permissions == [per1.name,per2.name,per3.name]
+
+class TestReturnFromStorage:
+    def test_employee_has_from_row_method(self):
+        assert hasattr(Employee,"from_row")
+    def test_from_row_preserves_id(self):
+        row = make_row(id="emp_deadbeef")
+        emp = Employee.from_row(row)
+        assert emp.id == "emp_deadbeef"
+    def test_from_row_accepts_date(self):
+        row = make_row(start_date=date(2024, 10, 2))
+        emp = Employee.from_row(row)
+        assert emp.start_date == date(2024, 10, 2)
+    def test_from_row_parses_permissions_string_to_list(self):
+        row = make_row(permissions="READ WRITE ADMIN")
+        emp = Employee.from_row(row)
+        assert emp.permissions == ["READ", "WRITE", "ADMIN"]
+    def test_from_row_empty_permissions_becomes_empty_list(self):
+        row = make_row(permissions="")
+        emp = Employee.from_row(row)
+        assert emp.permissions == []
+    def test_from_row_missing_permissions_defaults_to_empty_list(self):
+        row = make_row()
+        row.pop("permissions")
+        emp = Employee.from_row(row)
+        assert emp.permissions == []
+    def test_from_row_salary_string_is_cast_to_int(self):
+        row = make_row(salary="30000")
+        emp = Employee.from_row(row)
+        assert emp.salary == 30000
+        assert isinstance(emp.salary, int)
