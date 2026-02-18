@@ -26,6 +26,15 @@ def valid_department_kwargs():
         head_of_department = Employee(**valid_employee_kwargs()).id
     )
 
+def make_row(**overrides):
+    # A baseline "row" like you'd get from df.to_dict(orient="records")
+        base = {
+            "name": "per_1",
+            "department": "dep_deadbeef",
+        }
+        base.update(overrides)
+        return base
+
 
 class TestPermissionCreation:
     def test_permission_can_be_created(self):
@@ -145,3 +154,20 @@ class TestStoragePreparation:
             "department": dep1.id
         }
         assert per1_row == expected
+
+class TestReturnFromStorage:
+    def test_permission_has_from_row_method(self):
+        assert hasattr(Permission,"from_row")
+    def test_from_row_preserves_name(self):
+        row = make_row(name="everything")
+        perm = Permission.from_row(row)
+        assert perm.name == "everything"
+    def test_from_row_empty_department_becomes_None(self):
+        row = make_row(department="")
+        perm = Permission.from_row(row)
+        assert perm.department == None
+    def test_from_row_missing_department_defaults_to_None(self):
+        row = make_row()
+        row.pop("department")
+        perm = Permission.from_row(row)
+        assert perm.department == None

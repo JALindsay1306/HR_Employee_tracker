@@ -34,3 +34,13 @@ class Permission:
             "name":self.name,
             "department":self.department 
         }
+    @classmethod
+    def from_row(cls, row: dict) -> "Permission":
+        dept = row.get("department")
+        if dept == "" or dept is None:
+            dept = None
+
+        return cls(
+            name=row["name"],
+            department=dept
+        )

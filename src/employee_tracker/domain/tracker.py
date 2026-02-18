@@ -3,6 +3,8 @@ from employee_tracker.domain.department import Department
 from employee_tracker.domain.permission import Permission
 from employee_tracker.utils.ids import check_id
 from employee_tracker.utils.filtering import filter_list
+from employee_tracker.storage.storage import create_dataframe, read_csv, write_csv
+from typing import Dict
 
 class Tracker:
     def __init__(self):
@@ -59,3 +61,44 @@ class Tracker:
         per = Permission(name,department)
         self.permissions[per.name] = per
         return per
+    
+    def save_to_storage(self):
+        if self.employees:
+            emp_df = create_dataframe(self.employees.values())
+            write_csv("employees", emp_df)
+        if self.departments:
+            dep_df = create_dataframe(self.departments.values())
+            write_csv("departments", dep_df)
+        if self.permissions:
+            perm_df = create_dataframe(self.permissions.values())
+            write_csv("permissions", perm_df)
+
+
+    @classmethod
+    def load_from_storage(cls):
+        tracker = cls()
+
+        try:
+            emp_df = read_csv("employees")
+            for row in emp_df.to_dict(orient="records"):
+                emp = Employee.from_row(row)
+                tracker.employees[emp.id] = emp
+        except FileNotFoundError:
+            raise FileNotFoundError("no employees file found, please check data folder")
+        
+        try:
+            dep_df = read_csv("departments")
+            for row in dep_df.to_dict(orient="records"):
+                dep=Department.from_row(row)
+                tracker.departments[dep.id] = dep
+        except FileNotFoundError:
+            raise FileNotFoundError("no departments file found, please check data folder")
+
+        try:
+            perm_df = read_csv("permissions")
+            for row in perm_df.to_dict(orient="records"):
+                perm = Permission.from_row(row)
+                tracker.permissions[perm.name] = perm
+        except FileNotFoundError:
+            raise FileNotFoundError("no permissions file found, please check data folder")
+        return tracker

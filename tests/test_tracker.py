@@ -1,11 +1,15 @@
 import pytest
 from datetime import date
-from unittest.mock import patch
+from unittest.mock import patch, MagicMock
+import pandas as pd
 
 from employee_tracker.domain.tracker import Tracker
 from employee_tracker.domain.employee import Employee
 from employee_tracker.domain.department import Department
 from employee_tracker.domain.permission import Permission
+from employee_tracker.storage.storage import create_dataframe, write_csv, read_csv
+import employee_tracker.domain.tracker as tracker_module
+
 
 def valid_employee_kwargs():
     return dict(
@@ -404,4 +408,63 @@ class TestCreatePermissionTypeValidation:
 
         with pytest.raises(TypeError, match=error):
             trk.create_permission(**kwargs)
+
+class TestStorageManagement:
+    def test_tracker_has_save_to_storage_method(self):
+        assert hasattr(Tracker,"save_to_storage")
+    def test_tracker_has_load_from_storage_method(self):
+        assert hasattr(Tracker,"load_from_storage")
+    def test_save_calls_write_csv(self,monkeypatch):
+        tracker = Tracker()
+
+        fake_emp = MagicMock()
+        fake_emp.to_row.return_value = {"id": "emp_x"}
+
+        tracker.employees["emp_x"] = fake_emp
+
+        create_df_mock = MagicMock(return_value=pd.DataFrame([{"id": "emp_x"}]))
+        write_mock = MagicMock()
+
+        monkeypatch.setattr(tracker_module, "create_dataframe", create_df_mock)
+        monkeypatch.setattr(tracker_module, "write_csv", write_mock)
+
+        tracker.save_to_storage()
+
+        create_df_mock.assert_called_once()
+        write_mock.assert_called_once()
     
+    def test_load_calls_from_row(self, monkeypatch):
+        emp_df = pd.DataFrame([{
+            "id": "emp_aaaa1111",
+            "name": "James",
+            "role": "Creator",
+            "start_date": pd.Timestamp("2024-10-02"),
+            "salary": 100,
+            "address": "x",
+            "permissions": "",
+        }])
+
+        def fake_read_csv(file_type: str):
+            if file_type == "employees":
+                return emp_df
+            if file_type == "departments":
+                return pd.DataFrame(columns=["id", "name", "description", "head_of_department", "parent_department", "members"])
+            if file_type == "permissions":
+                return pd.DataFrame(columns=["name", "department"])
+            raise ValueError(file_type)
+
+        monkeypatch.setattr(tracker_module, "read_csv", fake_read_csv)
+
+        fake_emp = MagicMock()
+        fake_emp.id = "emp_aaaa1111"
+
+        emp_from_row = MagicMock(return_value=fake_emp)
+        monkeypatch.setattr(tracker_module.Employee, "from_row", emp_from_row)
+        
+        monkeypatch.setattr(tracker_module.Department, "from_row", MagicMock())
+        monkeypatch.setattr(tracker_module.Permission, "from_row", MagicMock())
+
+        tracker = Tracker.load_from_storage()
+
+        emp_from_row.assert_called_once_with(emp_df.to_dict(orient="records")[0])
+        assert tracker.employees["emp_aaaa1111"] is fake_emp

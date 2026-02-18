@@ -362,3 +362,5 @@ class TestReturnFromStorage:
         row.pop("members")
         dep = Department.from_row(row)
         assert dep.members == []
+
+
