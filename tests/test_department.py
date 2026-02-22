@@ -13,6 +13,7 @@ def valid_employee_kwargs():
         start_date=date(2024, 10, 2),
         salary=30000,
         address="123 Lane, Town, County",
+        password="password"
     )
 
 example_dep = Department("test","testDes",Employee(**valid_employee_kwargs()).id)

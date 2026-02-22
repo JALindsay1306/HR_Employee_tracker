@@ -16,6 +16,7 @@ def valid_employee_kwargs():
         start_date=date(2024, 10, 2),
         salary=30000,
         address="123 Lane, Town, County",
+        password_hash="zXl7n7B2cF9ZzC6bX5mJ8sQ2k1pLr4vTtYw9aBcDeFgHiJkLmNoPqRsTuVwXyZ12"
     )
 def make_row(**overrides):
     # A baseline "row" like you'd get from df.to_dict(orient="records")
@@ -27,6 +28,7 @@ def make_row(**overrides):
             "salary": 30000,
             "address": "123 Lane, Town, County",
             "permissions": "READ WRITE",
+            "password_hash": "zXl7n7B2cF9ZzC6bX5mJ8sQ2k1pLr4vTtYw9aBcDeFgHiJkLmNoPqRsTuVwXyZ12"            
         }
         base.update(overrides)
         return base
@@ -59,7 +61,8 @@ class TestEmployeeCreation:
             start_date=date(2023,12,12),
             salary=12345,
             address="An Address",
-            id= "emp_12345678"
+            id= "emp_12345678",
+            password="password"
         )
         assert emp.id == "emp_12345678"
 
@@ -265,6 +268,7 @@ class TestStoragePreparation:
         "start_date",
         "salary", 
         "address", 
+        "password_hash",
         "permissions"
         }
 
@@ -281,6 +285,7 @@ class TestStoragePreparation:
             "start_date": date(2024, 10, 2),
             "salary": 30000,
             "address": "123 Lane, Town, County",
+            "password_hash": "zXl7n7B2cF9ZzC6bX5mJ8sQ2k1pLr4vTtYw9aBcDeFgHiJkLmNoPqRsTuVwXyZ12",
             "permissions": " ".join(emp1.permissions),
         }
         assert emp1_row == expected

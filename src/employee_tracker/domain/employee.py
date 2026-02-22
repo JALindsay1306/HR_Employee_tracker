@@ -3,10 +3,11 @@ from datetime import date
 from employee_tracker.utils.ids import new_id
 from employee_tracker.utils.value_checkers import check_new_value
 from employee_tracker.utils.ids import check_id
+from employee_tracker.utils.passwords import hash_password, is_valid_stored_password_hash
 import pandas as pd
 
 class Employee:
-    def __init__(self,name,role, start_date,salary,address,permissions = None,id = None ):
+    def __init__(self,name,role, start_date,salary,address,password=None,permissions = None,id = None,password_hash=None ):
         if not isinstance(name,str):
             raise TypeError("Name must be a string")
         if not isinstance(role,str):
@@ -31,6 +32,11 @@ class Employee:
         self._permissions = permissions or []
         self._salary = salary
         self._address = address
+        if password_hash:
+            if is_valid_stored_password_hash(password_hash):
+                self._password_hash = password_hash
+        else:
+            self._password_hash = hash_password(password)
         self._enabled = True
     def salary_bump(self,uplift_percentage):
         self.salary = round(self.salary * (1 + uplift_percentage/100))
@@ -94,6 +100,12 @@ class Employee:
                     raise ValueError(f"{self.name} already has the permission {permission.name}, cannot add again")
                 else:
                     self.permissions.append(permission.name)
+    @property
+    def password_hash(self):
+        return self._password_hash
+    @password_hash.setter
+    def password_hash(self,new_password):
+        self._password_hash = hash_password(new_password)
     def remove_permission(self,permission):
         from employee_tracker.domain.permission import Permission
         if not isinstance(permission,Permission):
@@ -117,6 +129,7 @@ class Employee:
             "start_date":self.start_date,
             "salary":self.salary,
             "address":self.address,
+            "password_hash":self.password_hash,
             "permissions":" ".join(self.permissions) 
         }
     @classmethod
@@ -135,5 +148,6 @@ class Employee:
             start_date=start_date,
             salary=int(row["salary"]),
             address=row["address"],
+            password_hash=row["password_hash"],
             permissions=permissions,
         )

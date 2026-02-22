@@ -1,9 +1,11 @@
 from employee_tracker.domain.employee import Employee
 from employee_tracker.domain.department import Department
 from employee_tracker.domain.permission import Permission
+from employee_tracker.domain.user import User
 from employee_tracker.utils.ids import check_id
 from employee_tracker.utils.filtering import filter_list
 from employee_tracker.storage.storage import create_dataframe, read_csv, write_csv
+from employee_tracker.utils.passwords import hash_password
 from typing import Dict
 
 class Tracker:
@@ -11,8 +13,9 @@ class Tracker:
         self.employees: Dict[str,Employee] = {}
         self.departments: Dict[str,Department] = {}
         self.permissions: Dict[str,Permission] = {}
+        self.users: Dict[str,User] = {}
 
-    def create_employee(self,name,role, start_date,salary,address,permissions = None):
+    def create_employee(self,name,role, start_date,salary,address,permissions = None,password=None,password_hash=None,id=None):
         if permissions != None:
             if not isinstance(permissions,list):
                 raise TypeError("permissions must be a list of permission names")
@@ -20,8 +23,10 @@ class Tracker:
                 for permission in permissions:
                     if not permission in self.permissions:
                         raise TypeError("permissions in list must be valid permission names")
-        emp = Employee(name,role,start_date,salary,address,permissions)
+        emp = Employee(name=name,role=role,start_date=start_date,salary=salary,address=address,permissions=permissions,password=password,id=id,password_hash=password_hash)
         self.employees[emp.id] = emp
+        user = User(emp.id,emp.password_hash)
+        self.users[emp.id] = user
         return emp
     
     def list_employees(self,name_search=None,role_search=None,min_date=None,max_date=None,min_salary=None,max_salary=None,permissions=None):
@@ -37,7 +42,7 @@ class Tracker:
 
         emp = self.employees[emp_id]
 
-        allowed = {"name", "role", "start_date", "salary", "address"}  # only these
+        allowed = {"name", "role", "start_date", "salary", "address"}
         for key, value in new_data.items():
             if key == "id":
                 continue
@@ -54,6 +59,10 @@ class Tracker:
             raise ValueError("Employee not found, cannot delete")
         del self.employees[emp_id]
 
+    def update_employee_password(self,emp_id,new_password):
+        hash = hash_password(new_password)
+        self.employees[emp_id].password_hash = hash
+        self.users[emp_id].password_hash = hash
 
     def create_department(self,name,description,head_of_department,parent_department=None,members=None):
         if not check_id(head_of_department,"emp"):

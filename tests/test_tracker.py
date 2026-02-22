@@ -9,6 +9,7 @@ from employee_tracker.domain.department import Department
 from employee_tracker.domain.permission import Permission
 from employee_tracker.storage.storage import create_dataframe, write_csv, read_csv
 import employee_tracker.domain.tracker as tracker_module
+from employee_tracker.utils.passwords import hash_password
 
 
 def valid_employee_kwargs():
@@ -18,6 +19,7 @@ def valid_employee_kwargs():
         start_date=date(2024, 10, 2),
         salary=30000,
         address="123 Lane, Town, County",
+        password="password"
     )
 
 def valid_permission_kwargs():
@@ -43,8 +45,7 @@ class TestTrackerCreation:
         assert hasattr(trk,"employees")
         assert hasattr(trk,"departments")
         assert hasattr(trk,"permissions")
-
-
+        assert hasattr(trk,"users")
 
 class TestCreateEmployee:
     def test_tracker_has_create_employee_method(self):
@@ -52,23 +53,39 @@ class TestCreateEmployee:
     @patch("employee_tracker.domain.tracker.Employee")
     def test_create_employee_calls_employee_constructor(self,mock_employee):
         trk = Tracker()
-        trk.create_employee("John","Boss",date(2024, 10, 2),50000,"My Address")
+        fake_emp = MagicMock()
+        fake_emp.id = "emp_12345678"
+        fake_emp.password_hash = hash_password("password")  # <-- key change
+        mock_employee.return_value = fake_emp
+
+        trk.create_employee(
+            name="John",
+            role="Boss",
+            start_date=date(2024, 10, 2),
+            salary=50000,
+            address="My Address",
+            password="password",
+        )
+
         mock_employee.assert_called_once_with(
-            "John",
-            "Boss",
-            date(2024, 10, 2),
-            50000,
-            "My Address",
-            None,
+            name="John",
+            role="Boss",
+            start_date=date(2024, 10, 2),
+            salary=50000,
+            address="My Address",
+            permissions=None,
+            password="password",
+            id=None,
+            password_hash=None,
         )
     def test_create_employee_adds_to_employees(self):
         trk = Tracker()
-        emp = trk.create_employee("John","Boss",date(2024, 10, 2),50000,"My Address")
+        emp = trk.create_employee("John","Boss",date(2024, 10, 2),50000,"My Address",None,"password")
         assert len(trk.employees) == 1
         assert trk.employees[emp.id].name == "John"
     def test_created_employee_is_employee_class(self):
         trk = Tracker()
-        emp = trk.create_employee("John","Boss",date(2024, 10, 2),50000,"My Address")
+        emp = trk.create_employee("John","Boss",date(2024, 10, 2),50000,"My Address",None,"password")
         assert isinstance(trk.employees[emp.id],Employee)
 
 class TestCreateEmployeeTypeValidation:
@@ -273,7 +290,7 @@ class TestCreateDepartment:
     @patch("employee_tracker.domain.tracker.Department")
     def test_create_department_calls_department_constructor(self,mock_department):
         trk = Tracker()
-        emp = trk.create_employee("John","Boss",date(2024, 10, 2),50000,"My Address")
+        emp = trk.create_employee("John","Boss",date(2024, 10, 2),50000,"My Address",None,"password")
         dep = trk.create_department("Finance","Where the money is",emp.id)
         mock_department.assert_called_once_with(
             "Finance",
@@ -284,13 +301,13 @@ class TestCreateDepartment:
         )
     def test_create_department_adds_to_departments(self):
         trk = Tracker()
-        emp = trk.create_employee("John","Boss",date(2024, 10, 2),50000,"My Address")
+        emp = trk.create_employee("John","Boss",date(2024, 10, 2),50000,"My Address",None,"password")
         dep = trk.create_department("Finance","Where the money is",emp.id)
         assert len(trk.departments) == 1
         assert trk.departments[dep.id].name == "Finance"
     def test_created_department_is_department_class(self):
         trk = Tracker()
-        emp = trk.create_employee("John","Boss",date(2024, 10, 2),50000,"My Address")
+        emp = trk.create_employee("John","Boss",date(2024, 10, 2),50000,"My Address",None,"password")
         dep = trk.create_department("Finance","Where the money is",emp.id)
         assert isinstance(trk.departments[dep.id],Department)
 

@@ -19,6 +19,7 @@ def valid_employee_kwargs():
         start_date=date(2024, 10, 2),
         salary=30000,
         address="123 Lane, Town, County",
+        password_hash="zXl7n7B2cF9ZzC6bX5mJ8sQ2k1pLr4vTtYw9aBcDeFgHiJkLmNoPqRsTuVwXyZ12"
     )
 
 def valid_department_kwargs(dep_name,head,parent=None):

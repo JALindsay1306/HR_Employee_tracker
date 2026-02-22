@@ -23,7 +23,9 @@ def generate_sample_data() -> Tracker:
         salary=52000,
         address="10 King Street, London",
         permissions=["hr_read","hr_write"],
+        password="Alice@123"
     )
+
     e2 = tracker.create_employee(
         name="Ben Carter",
         role="Software Engineer",
@@ -31,7 +33,9 @@ def generate_sample_data() -> Tracker:
         salary=65000,
         address="22 Baker Street, London",
         permissions=["it_admin"],
+        password="Ben@123"
     )
+
     e3 = tracker.create_employee(
         name="Chloe Singh",
         role="Payroll Specialist",
@@ -39,7 +43,9 @@ def generate_sample_data() -> Tracker:
         salary=48000,
         address="18 High Road, Croydon",
         permissions=["payroll", "hr_read"],
+        password="Chloe@123"
     )
+
     e4 = tracker.create_employee(
         name="Daniel Evans",
         role="Customer Support",
@@ -47,7 +53,9 @@ def generate_sample_data() -> Tracker:
         salary=32000,
         address="3 Station Road, Watford",
         permissions=[],
+        password="Daniel@123"
     )
+
     e5 = tracker.create_employee(
         name="Evelyn Brown",
         role="Finance Analyst",
@@ -55,7 +63,9 @@ def generate_sample_data() -> Tracker:
         salary=56000,
         address="77 Queensway, London",
         permissions=["payroll"],
+        password="Evelyn@123"
     )
+
     e6 = tracker.create_employee(
         name="Frank Mitchell",
         role="Backend Developer",
@@ -63,6 +73,7 @@ def generate_sample_data() -> Tracker:
         salary=68000,
         address="14 Elm Street, Manchester",
         permissions=["it_admin"],
+        password="Frank@123"
     )
 
     e7 = tracker.create_employee(
@@ -72,6 +83,7 @@ def generate_sample_data() -> Tracker:
         salary=45000,
         address="22 Victoria Road, Birmingham",
         permissions=["hr_read"],
+        password="Grace@123"
     )
 
     e8 = tracker.create_employee(
@@ -81,6 +93,7 @@ def generate_sample_data() -> Tracker:
         salary=59000,
         address="5 Riverside Drive, Leeds",
         permissions=["it_admin"],
+        password="Hannah@123"
     )
 
     e9 = tracker.create_employee(
@@ -90,6 +103,7 @@ def generate_sample_data() -> Tracker:
         salary=72000,
         address="31 Hill Lane, Bristol",
         permissions=["it_admin"],
+        password="Ian@123"
     )
 
     e10 = tracker.create_employee(
@@ -99,6 +113,7 @@ def generate_sample_data() -> Tracker:
         salary=40000,
         address="9 Oak Avenue, Liverpool",
         permissions=["payroll"],
+        password="Jasmine@123"
     )
 
     e11 = tracker.create_employee(
@@ -108,6 +123,7 @@ def generate_sample_data() -> Tracker:
         salary=70000,
         address="18 Park Crescent, Nottingham",
         permissions=["it_admin"],
+        password="Kevin@123"
     )
 
     e12 = tracker.create_employee(
@@ -117,6 +133,7 @@ def generate_sample_data() -> Tracker:
         salary=48000,
         address="44 Maple Street, Sheffield",
         permissions=["hr_read", "hr_write"],
+        password="Laura@123"
     )
 
     e13 = tracker.create_employee(
@@ -126,6 +143,7 @@ def generate_sample_data() -> Tracker:
         salary=63000,
         address="7 Grove Lane, Oxford",
         permissions=["it_admin"],
+        password="Marcus@123"
     )
 
     e14 = tracker.create_employee(
@@ -135,6 +153,7 @@ def generate_sample_data() -> Tracker:
         salary=82000,
         address="11 Harbour Road, Southampton",
         permissions=["payroll"],
+        password="Natalie@123"
     )
 
     e15 = tracker.create_employee(
@@ -144,6 +163,7 @@ def generate_sample_data() -> Tracker:
         salary=35000,
         address="62 Brook Street, Leicester",
         permissions=["it_admin"],
+        password="Oliver@123"
     )
 
     e16 = tracker.create_employee(
@@ -153,6 +173,7 @@ def generate_sample_data() -> Tracker:
         salary=61000,
         address="27 Station Road, Reading",
         permissions=["hr_read"],
+        password="Priya@123"
     )
 
     e17 = tracker.create_employee(
@@ -162,6 +183,7 @@ def generate_sample_data() -> Tracker:
         salary=75000,
         address="3 Mill Lane, Cambridge",
         permissions=["it_admin"],
+        password="Quentin@123"
     )
 
     e18 = tracker.create_employee(
@@ -171,6 +193,7 @@ def generate_sample_data() -> Tracker:
         salary=54000,
         address="88 Market Street, York",
         permissions=[],
+        password="Rachel@123"
     )
 
     e19 = tracker.create_employee(
@@ -180,6 +203,7 @@ def generate_sample_data() -> Tracker:
         salary=60000,
         address="16 Bridge Road, Cardiff",
         permissions=["payroll"],
+        password="Samuel@123"
     )
 
     e20 = tracker.create_employee(
@@ -189,6 +213,7 @@ def generate_sample_data() -> Tracker:
         salary=58000,
         address="29 Queen Street, Newcastle",
         permissions=[],
+        password="Tara@123"
     )
 
     e21 = tracker.create_employee(
@@ -198,6 +223,7 @@ def generate_sample_data() -> Tracker:
         salary=90000,
         address="2 Kingsway, Edinburgh",
         permissions=[],
+        password="Umar@123"
     )
 
     e22 = tracker.create_employee(
@@ -207,6 +233,7 @@ def generate_sample_data() -> Tracker:
         salary=38000,
         address="13 Chapel Street, Coventry",
         permissions=["hr_read"],
+        password="Victoria@123"
     )
 
     e23 = tracker.create_employee(
@@ -216,6 +243,7 @@ def generate_sample_data() -> Tracker:
         salary=77000,
         address="40 City Road, Glasgow",
         permissions=[],
+        password="William@123"
     )
 
     e24 = tracker.create_employee(
@@ -225,6 +253,7 @@ def generate_sample_data() -> Tracker:
         salary=62000,
         address="6 Manor Close, Plymouth",
         permissions=["hr_read", "payroll"],
+        password="Xenia@123"
     )
 
     e25 = tracker.create_employee(
@@ -234,7 +263,9 @@ def generate_sample_data() -> Tracker:
         salary=69000,
         address="55 Green Lane, Derby",
         permissions=["it_admin"],
+        password="Yusuf@123"
     )
+    
 
     d1 = tracker.create_department(
         name="Human Resources",

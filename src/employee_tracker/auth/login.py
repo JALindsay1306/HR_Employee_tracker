@@ -1,0 +1,10 @@
+from employee_tracker.utils.passwords import verify_password
+
+def login(tracker,emp_id,password_attempt):
+    if emp_id not in tracker.users:
+        raise LookupError("No such user")
+    if verify_password(password_attempt,tracker.users[emp_id].password_hash):
+        return tracker.employees[emp_id].permissions
+    else:
+        raise PermissionError("Incorrect password")
+    

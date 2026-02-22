@@ -1,9 +1,13 @@
 import pytest
 from datetime import date
+import base64
+import pytest
+
 from employee_tracker.utils.ids import new_id, check_id
 from employee_tracker.utils.value_checkers import check_new_value
 from employee_tracker.utils.filtering import filter_list
 from employee_tracker.domain.employee import Employee
+from employee_tracker.utils.passwords import hash_password, verify_password,is_valid_stored_password_hash
 
 def valid_employee_kwargs():
     return dict(
@@ -12,6 +16,7 @@ def valid_employee_kwargs():
         start_date=date(2024, 10, 2),
         salary=30000,
         address="123 Lane, Town, County",
+        password_hash="zXl7n7B2cF9ZzC6bX5mJ8sQ2k1pLr4vTtYw9aBcDeFgHiJkLmNoPqRsTuVwXyZ12"
     )
 
 class TestIDCreation:
@@ -164,4 +169,34 @@ class TestFiltering:
          with pytest.raises(TypeError,match="Parameter type should be string, max or min"):
             filtered_list = filter_list(emp_list,"salary",45000,"money")
     
-        
+class TestHashPassword:
+    def test_hash_password_returns_string(self):
+        hash = hash_password("password")
+        assert isinstance(hash,str)
+        assert hash
+    def test_hash_password_uses_random_salt(self):
+        hash1 = hash_password("password")
+        hash2 = hash_password("password")
+        assert hash1 != hash2
+        assert hash1 and hash2
+class TestVerifyPassword:
+    def test_verify_password_correctly_verifies(self):
+        stored = hash_password("password")
+        assert verify_password("password",stored) == True
+    def test_verify_password_flags_wrong_password(self):
+        stored = hash_password("password")
+        assert verify_password("other-password",stored) == False
+
+class TestHashValidator:
+    def test_validator_rejects_empty_and_non_string(self):
+        assert is_valid_stored_password_hash("") is False
+        assert is_valid_stored_password_hash(None) is False
+        assert is_valid_stored_password_hash(123) is False
+    def test_validator_rejects_non_base64(self):
+        assert is_valid_stored_password_hash("not base64") is False
+
+    def test_validator_rejects_wrong_length_decoded(self):
+        bad_hash = base64.b64encode(b"x" * (51)).decode("utf-8")
+        assert is_valid_stored_password_hash(bad_hash) is False
+        bad_hash2 = base64.b64encode(b"x" * (53)).decode("utf-8")
+        assert is_valid_stored_password_hash(bad_hash2) is False

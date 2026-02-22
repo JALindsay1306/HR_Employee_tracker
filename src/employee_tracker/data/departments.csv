@@ -1,6 +1,6 @@
 id,name,description,head_of_department,parent_department,members
-dep_7e59fb7a,Human Resources,"Hiring, onboarding, policies",emp_81975896,,emp_81975896 emp_237493c0 emp_b3d5bf6b emp_02882353 emp_c215796e
-dep_b131351d,Engineering,Product development and systems,emp_a2aebf0b,,emp_00c6c104 emp_ccf7f275 emp_c302c57e emp_8aed4554 emp_b3666611 emp_b482953a emp_a2aebf0b emp_6ac21a90
-dep_3047ec65,Finance,"Budgeting, payroll, reporting",emp_7ad70332,,emp_5a4117b2 emp_35c11947 emp_10b8391c emp_7ad70332 emp_53e5d0bd
-dep_fe6a69b2,Support,Customer support operations,emp_195eaf9b,,emp_04e117c9 emp_195eaf9b
-dep_57903c1f,IT Operations,"Infrastructure, support, security, networks",emp_ecfdf00d,,emp_ecfdf00d emp_e5f990c6 emp_7b537709 emp_03d3aa16 emp_889c9adf
+dep_8e353ae9,Human Resources,"Hiring, onboarding, policies",emp_31b9c111,,emp_31b9c111 emp_4d149816 emp_4031d966 emp_b67ac911 emp_92365d53
+dep_455a2ff2,Engineering,Product development and systems,emp_613dc30f,,emp_14c3e5be emp_6194e5da emp_65a3d098 emp_995f3ed7 emp_ee5ca645 emp_fb494144 emp_613dc30f emp_0fca5242
+dep_973a2f38,Finance,"Budgeting, payroll, reporting",emp_2f142556,,emp_876f203c emp_2970fd40 emp_7c4362bf emp_2f142556 emp_d30ddf99
+dep_cbf227de,Support,Customer support operations,emp_2c37913a,,emp_eb787f45 emp_2c37913a
+dep_ddc6a4ce,IT Operations,"Infrastructure, support, security, networks",emp_c92cf481,,emp_c92cf481 emp_b36f8ccd emp_1e688736 emp_788c96a8 emp_1d311bb2
