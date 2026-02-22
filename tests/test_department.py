@@ -191,28 +191,24 @@ class TestRemoveEmployees:
         assert dep.remove_employee(emp1.id) == "Last employee removed, department empty"
 
 class TestUpdateName:
-    def test_department_has_update_name(self):
-        assert hasattr(Department,"update_name")
     def test_updates_name(self):
         dep = Department(**valid_department_kwargs())
-        dep.update_name("New")
+        dep.name = "New"
         assert dep.name == "New"
     def test_enforces_string_requirement(self):
         dep = Department(**valid_department_kwargs())
         with pytest.raises(TypeError,match="name must be a string"):
-            dep.update_name(True)
+            dep.name = True
 
 class TestUpdateDescription:
-    def test_department_has_update_description(self):
-        assert hasattr(Department,"update_description")
     def test_updates_description(self):
         dep = Department(**valid_department_kwargs())
-        dep.update_description("New")
+        dep.description = "New"
         assert dep.description == "New"
     def test_enforces_string_requirement(self):
         dep = Department(**valid_department_kwargs())
         with pytest.raises(TypeError,match="description must be a string"):
-            dep.update_description(True)
+            dep.description = True
 class TestChangeDepartmentHead:
     def test_department_has_change_department_head_method(self):
         assert hasattr(Department,"change_head_of_department")
@@ -363,4 +359,42 @@ class TestReturnFromStorage:
         dep = Department.from_row(row)
         assert dep.members == []
 
+class TestMembersSetter:
+    def test_replacing_members_is_successful(self):
+        dep = Department(**valid_department_kwargs())
+        emp1 = Employee(**valid_employee_kwargs())
+        emp2 = Employee(**valid_employee_kwargs())
+        emp3 = Employee(**valid_employee_kwargs())
+        dep.add_employee(emp1)
+        dep.add_employee(emp2)
+        dep.add_employee(emp3)
+        assert dep.members == [emp1.id,emp2.id,emp3.id]
+        emp4 = Employee(**valid_employee_kwargs())
+        emp5 = Employee(**valid_employee_kwargs())
+        emp6 = Employee(**valid_employee_kwargs())
+        dep.members = [emp4.id,emp5.id,emp6.id]
+        assert dep.members == [emp4.id,emp5.id,emp6.id]
+    def test_rejects_non_list_input(self):
+        dep = Department(**valid_department_kwargs())
+        emp1 = Employee(**valid_employee_kwargs())
+        emp2 = Employee(**valid_employee_kwargs())
+        emp3 = Employee(**valid_employee_kwargs())
+        dep.add_employee(emp1)
+        dep.add_employee(emp2)
+        dep.add_employee(emp3)
+        assert dep.members == [emp1.id,emp2.id,emp3.id]
+        with pytest.raises(TypeError,match="members must be a list of employees"):
+            dep.members = "Staff members"
+    def test_rejects_list_with_invalid_id(self):
+        dep = Department(**valid_department_kwargs())
+        emp1 = Employee(**valid_employee_kwargs())
+        emp2 = Employee(**valid_employee_kwargs())
+        emp3 = Employee(**valid_employee_kwargs())
+        dep.add_employee(emp1)
+        dep.add_employee(emp2)
+        dep.add_employee(emp3)
+        assert dep.members == [emp1.id,emp2.id,emp3.id]
+        with pytest.raises(ValueError,match="all items in list should be valid employee ids"):
+            dep.members = [emp1.id,"bad_id",emp2.id]
+        assert dep.members == [emp1.id,emp2.id,emp3.id]
 

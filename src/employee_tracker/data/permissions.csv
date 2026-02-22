@@ -1,0 +1,6 @@
+name,active
+payroll,False
+finance_edit,False
+hr_read,False
+hr_write,False
+it_admin,False

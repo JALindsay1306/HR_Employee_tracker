@@ -214,6 +214,59 @@ class TestListEmployees:
         assert len(employee_list) == 1
         assert employee_list[0].salary == 40000
 
+class TestDeleteEmployee:
+    def test_tracker_has_delete_employee_method(self):
+        assert hasattr(Tracker,"delete_employee")
+    def test_removes_employee(self):
+        trk = Tracker()
+        kwargs = valid_employee_kwargs()
+        emp_1 = trk.create_employee(**kwargs)
+        emp_2 = trk.create_employee(**kwargs)
+        emp_3 = trk.create_employee(**kwargs)
+        emp_4 = trk.create_employee(**kwargs)
+        trk.delete_employee(emp_1.id)
+        assert len(trk.employees) == 3
+        assert list(trk.employees.keys()) == [emp_2.id, emp_3.id, emp_4.id]
+    def test_validates_input(self):
+        trk = Tracker()
+        with pytest.raises(TypeError,match="Invalid ID"):
+            trk.delete_employee("fake_id")
+    def test_raises_error_when_ID_not_found(self):
+        trk = Tracker()
+        with pytest.raises(ValueError,match="Employee not found, cannot delete"):
+            trk.delete_employee("emp_12345678")
+
+class TestUpdateEmployee:
+    def test_tracker_has_update_employee_method(self):
+        assert hasattr(Tracker,"update_employee")
+    def test_updates_employee_information(self):
+        trk = Tracker()
+        emp = trk.create_employee(**valid_employee_kwargs())
+
+        old_id = emp.id
+        old_start_date = emp.start_date
+
+        new_data = {
+            "name": "Ada Lovelace",
+            "role": "Senior Engineer",
+            "salary": emp.salary + 1000,
+            "address": "10 Downing Street, London",
+        }
+
+        returned = trk.update_employee(emp.id, new_data)
+
+        assert returned is emp
+        assert trk.employees[emp.id] is emp
+
+        assert emp.id == old_id
+        assert emp.name == new_data["name"]
+        assert emp.role == new_data["role"]
+        assert emp.salary == new_data["salary"]
+        assert emp.address == new_data["address"]
+
+        assert emp.start_date == old_start_date
+
+
 class TestCreateDepartment:
     def test_tracker_has_create_department_method(self):
         assert hasattr(Tracker,"create_department")
@@ -363,31 +416,110 @@ class TestListDepartments:
         assert len(department_list) == 2
         assert department_list[0].parent_department == dep_2.id and department_list[1].parent_department == dep_2.id
         
+class TestUpdateDepartment:
+    def test_tracker_has_update_department_method(self):
+        assert hasattr(Tracker,"update_department")
+    def test_updates_department_information(self):
+        trk = Tracker()
+        dep = trk.create_department(**valid_department_kwargs())
+
+        old_id = dep.id
+
+        new_data = {
+            "name": "Ada Lovelace",
+            "description": "Senior Engineer",
+            "head_of_department": "emp_45678902",
+            "parent_department": "dep_87382983",
+            "members":["emp_67883674","emp_67485692"]
+        }
+
+        returned = trk.update_department(dep.id, new_data)
+
+        assert returned is dep
+        assert trk.departments[dep.id] is dep
+
+        assert dep.id == old_id
+        assert dep.name == new_data["name"]
+        assert dep.description == new_data["description"]
+        assert dep.head_of_department == new_data["head_of_department"]
+        assert dep.parent_department == new_data["parent_department"]
+        assert dep.members == new_data["members"]
+
+class TestDeleteDepartment:
+    def test_tracker_has_delete_department_method(self):
+        assert hasattr(Tracker,"delete_department")
+    def test_removes_department(self):
+        trk = Tracker()
+        kwargs = valid_department_kwargs()
+        dep_1 = trk.create_department(**kwargs)
+        dep_2 = trk.create_department(**kwargs)
+        dep_3 = trk.create_department(**kwargs)
+        dep_4 = trk.create_department(**kwargs)
+        trk.delete_department(dep_1.id)
+        assert len(trk.departments) == 3
+        assert list(trk.departments.keys()) == [dep_2.id, dep_3.id, dep_4.id]
+    def test_validates_input(self):
+        trk = Tracker()
+        with pytest.raises(TypeError,match="Invalid ID"):
+            trk.delete_department("fake_id")
+    def test_raises_error_when_ID_not_found(self):
+        trk = Tracker()
+        with pytest.raises(ValueError,match="Department not found, cannot delete"):
+            trk.delete_department("dep_12345678")
+
+class TestAddEmployeeToDepartment:
+    def test_tracker_has_add_employee_to_department_method(self):
+        assert hasattr(Tracker,"add_employee_to_department")
+    def test_adds_employee_to_department_members(self):
+        trk = Tracker()
+        dep = trk.create_department(**valid_department_kwargs())
+        emp = trk.create_employee(**valid_employee_kwargs())
+        trk.add_employee_to_department(dep.id,emp.id)
+        assert emp.id in trk.departments[dep.id].members
+    def test_rejects_invalid_dep_id(self):
+        trk = Tracker()
+        dep = trk.create_department(**valid_department_kwargs())
+        emp = trk.create_employee(**valid_employee_kwargs())
+        with pytest.raises(ValueError,match="Invalid Department ID"):
+            trk.add_employee_to_department("bad_dep.id",emp.id)
+    def test_rejects_invalid_emp_id(self):
+        trk = Tracker()
+        dep = trk.create_department(**valid_department_kwargs())
+        emp = trk.create_employee(**valid_employee_kwargs())
+        with pytest.raises(ValueError,match="Invalid Employee ID"):
+            trk.add_employee_to_department(dep.id,"bad_emp.id")
+    def test_rejects_invalid_dep_id(self):
+        trk = Tracker()
+        dep = trk.create_department(**valid_department_kwargs())
+        emp = trk.create_employee(**valid_employee_kwargs())
+        with pytest.raises(KeyError,match="Check Department ID, not found"):
+            trk.add_employee_to_department("dep_87654321",emp.id)
+    def test_rejects_invalid_dep_id(self):
+        trk = Tracker()
+        dep = trk.create_department(**valid_department_kwargs())
+        emp = trk.create_employee(**valid_employee_kwargs())
+        with pytest.raises(KeyError,match="Check Employee ID, not found"):
+            trk.add_employee_to_department(dep.id,"emp_87654321")
+
 class TestCreatePermission:
     def test_tracker_has_create_permission_method(self):
         assert hasattr(Tracker,"create_permission")
     @patch("employee_tracker.domain.tracker.Permission")
     def test_create_permission_calls_permission_constructor(self,mock_permission):
         trk = Tracker()
-        emp = trk.create_employee("John","Boss",date(2024, 10, 2),50000,"My Address")
-        dep = trk.create_department("Finance","Where the money is",emp.id)
-        per = trk.create_permission("admin",dep.id)
+        per = trk.create_permission("admin")
         mock_permission.assert_called_once_with(
             "admin",
-            dep.id,
+            False
         )
     def test_create_permission_adds_to_permissions(self):
         trk = Tracker()
-        emp = trk.create_employee("John","Boss",date(2024, 10, 2),50000,"My Address")
-        dep = trk.create_department("Finance","Where the money is",emp.id)
-        per = trk.create_permission("admin",dep.id)
+        per = trk.create_permission("admin")
         assert len(trk.permissions) == 1
         assert trk.permissions[per.name].name == "admin"
     def test_created_permission_is_permission_class(self):
         trk = Tracker()
-        emp = trk.create_employee("John","Boss",date(2024, 10, 2),50000,"My Address")
-        dep = trk.create_department("Finance","Where the money is",emp.id)
-        per = trk.create_permission("admin",dep.id)
+        per = trk.create_permission("admin")
         assert isinstance(trk.permissions[per.name],Permission)
 
 class TestCreatePermissionTypeValidation:
@@ -395,14 +527,12 @@ class TestCreatePermissionTypeValidation:
         "field,value,error",
         [
             ("name", 123, "Name must be a string"),
-            ("department","today","department must be a valid department id"),
+            ("active","today","active must be a boolean value"),
         ],
      )
 
     def test_invalid_datatypes(self, field, value, error):
         trk = Tracker()
-        emp = trk.create_employee("John","Boss",date(2024, 10, 2),50000,"My Address")
-        dep = trk.create_department("Finance","Where the money is",emp.id)
         kwargs = valid_permission_kwargs()
         kwargs[field] = value
 

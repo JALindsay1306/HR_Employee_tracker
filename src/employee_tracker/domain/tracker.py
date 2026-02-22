@@ -18,7 +18,7 @@ class Tracker:
                 raise TypeError("permissions must be a list of permission names")
             else:
                 for permission in permissions:
-                    if not check_id(permission,"per"):
+                    if not permission in self.permissions:
                         raise TypeError("permissions in list must be valid permission names")
         emp = Employee(name,role,start_date,salary,address,permissions)
         self.employees[emp.id] = emp
@@ -31,6 +31,30 @@ class Tracker:
                 employee_list = filter_list(employee_list,value[0],key,value[1])   
         return employee_list
     
+    def update_employee(self,emp_id,new_data):
+        if emp_id not in self.employees:
+            raise KeyError(f"Employee {emp_id} not found")
+
+        emp = self.employees[emp_id]
+
+        allowed = {"name", "role", "start_date", "salary", "address"}  # only these
+        for key, value in new_data.items():
+            if key == "id":
+                continue
+            if key not in allowed:
+                raise ValueError(f"{key} is not a valid employee field")
+            setattr(emp, key, value)
+
+        return emp
+
+    def delete_employee(self,emp_id):
+        if not check_id(emp_id,"emp"):
+            raise TypeError("Invalid ID")
+        if emp_id not in self.employees.keys():
+            raise ValueError("Employee not found, cannot delete")
+        del self.employees[emp_id]
+
+
     def create_department(self,name,description,head_of_department,parent_department=None,members=None):
         if not check_id(head_of_department,"emp"):
             raise TypeError("head_of_department must be a valid employee id")
@@ -55,12 +79,44 @@ class Tracker:
                 department_list = filter_list(department_list,value[0],key,value[1]) 
         return department_list
     
-    def create_permission(self,name,department = None):
-        if department != None and not check_id(department,"dep"):
-            raise TypeError("department must be a valid department id")
-        per = Permission(name,department)
-        self.permissions[per.name] = per
-        return per
+    def update_department(self,dep_id,new_data):
+        if dep_id not in self.departments:
+            raise KeyError(f"Department {dep_id} not found")
+
+        dep = self.departments[dep_id]
+
+        allowed = {"name", "description", "head_of_department", "parent_department", "members"}  # only these
+        for key, value in new_data.items():
+            if key == "id":
+                continue
+            if key not in allowed:
+                raise ValueError(f"{key} is not a valid department field")
+            setattr(dep, key, value)
+
+        return dep
+    
+    def delete_department(self,dep_id):
+        if not check_id(dep_id,"dep"):
+            raise TypeError("Invalid ID")
+        if dep_id not in self.departments.keys():
+            raise ValueError("Department not found, cannot delete")
+        del self.departments[dep_id]
+    
+    def add_employee_to_department(self,dep_id,emp_id):
+        if not check_id(dep_id,"dep"):
+            raise ValueError("Invalid Department ID")
+        if not check_id(emp_id,"emp"):
+            raise ValueError("Invalid Employee ID")
+        if dep_id not in self.departments.keys():
+            raise KeyError("Check Department ID, not found")
+        if emp_id not in self.employees.keys():
+            raise KeyError("Check Employee ID, not found")
+        self.departments[dep_id].members.append(emp_id)
+    
+    def create_permission(self,name,active = False):
+        perm = Permission(name,active)
+        self.permissions[perm.name] = perm
+        return perm
     
     def save_to_storage(self):
         if self.employees:
@@ -102,3 +158,11 @@ class Tracker:
         except FileNotFoundError:
             raise FileNotFoundError("no permissions file found, please check data folder")
         return tracker
+    
+    @classmethod
+    def load_or_create_sample(cls):
+        try:
+            return cls.load_from_storage()
+        except FileNotFoundError:
+            from employee_tracker.utils.generate_sample_data import generate_sample_data
+            return generate_sample_data()

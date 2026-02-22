@@ -30,7 +30,7 @@ def make_row(**overrides):
     # A baseline "row" like you'd get from df.to_dict(orient="records")
         base = {
             "name": "per_1",
-            "department": "dep_deadbeef",
+            "active": True,
         }
         base.update(overrides)
         return base
@@ -40,14 +40,14 @@ class TestPermissionCreation:
     def test_permission_can_be_created(self):
         per = Permission(**valid_permission_kwargs())
         assert hasattr(per,"name")
-        assert hasattr(per,"department")
+        assert hasattr(per,"active")
 
 class TestPermissionTypeValidation:
      @pytest.mark.parametrize(
         "field,value,error",
         [
             ("name", 123, "Name must be a string"),
-            ("department", 3.45, "department must be a str"),
+            ("active", 3.45, "active must be a boolean value"),
         ],
      )
      def test_invalid_datatypes(self, field, value, error):
@@ -58,74 +58,31 @@ class TestPermissionTypeValidation:
             Permission(**kwargs)
 
 class TestChangeName:
-    def test_permission_has_change_name_method(self):
-        assert hasattr(Permission,"change_name")
     def test_change_name_changes_name(self):
         per1 = Permission(**valid_permission_kwargs())
-        per1.change_name("New name")
+        per1.name = "New name"
         assert per1.name == "New name"
     def test_change_name_validates_string(self):
         per1 = Permission(**valid_permission_kwargs())
         with pytest.raises(TypeError,match="name must be a string"):
-            per1.change_name(1234)
+            per1.name = False
     def test_will_not_accept_same_name(self):
         per1 = Permission(**valid_permission_kwargs())
-        per1.change_name("New name")
+        per1.name = "New name"
         with pytest.raises(ValueError,match = "name is already New name"):
-            per1.change_name("New name")
+            per1.name = "New name"
 
-class TestAddDepartment:
-    def test_permission_has_add_department_method(self):
-        assert hasattr(Permission,"add_department")
-    def test_add_department_adds_department_id(self):
+class TestSetActive:
+    def test_can_change_active_state(self):
         per1 = Permission(**valid_permission_kwargs())
-        dep1 = Department(**valid_department_kwargs())
-        per1.add_department(dep1)
-        assert per1.department == dep1.id
-    def test_will_not_accept_non_department(self):
+        per1.active = True
+        assert per1.active == True
+        per1.active = False
+        assert per1.active == False
+    def test_rejects_invalid_input(self):
         per1 = Permission(**valid_permission_kwargs())
-        per2 = Permission(**valid_permission_kwargs())
-        with pytest.raises(TypeError,match = "department must be a Department"):
-            per1.add_department(per2)
-    def test_id_checked_for_validity(self):
-        with patch("employee_tracker.domain.permission.check_id", return_value="per") as mock_check_id:
-            dep1 = Department(**valid_department_kwargs())
-            per1 = Permission(**valid_permission_kwargs())
-            per1.add_department(dep1)
-            mock_check_id.assert_called_once_with(dep1.id,"dep")
-    def test_rejects_invalid_id(self):
-        dep1 = Department(**valid_department_kwargs())
-        per1 = Permission(**valid_permission_kwargs())
-        dep1.id = "BadID"
-        with pytest.raises(ValueError,match="invalid ID"):
-             per1.add_department(dep1)
-    def test_replaces_old_department_with_new(self):
-        per1 = Permission(**valid_permission_kwargs())
-        dep1 = Department(**valid_department_kwargs())
-        dep2 = Department(**valid_department_kwargs())
-        per1.add_department(dep1)
-        per1.add_department(dep2)
-        assert per1.department == dep2.id
-    def test_does_not_replace_with_same_department(self):
-        per1 = Permission(**valid_permission_kwargs())
-        dep1 = Department(**valid_department_kwargs())
-        per1.add_department(dep1)
-        with pytest.raises(ValueError,match = f"{dep1.name} is already the department, cannot replace with itself"):
-            per1.add_department(dep1)
-
-class TestRemoveDepartment:
-    def test_permission_has_remove_department_method(self):
-        assert hasattr(Permission,"remove_department")
-    def test_remove_department_removes_department(self):
-        per1 = Permission(**valid_permission_kwargs())
-        dep1 = Department(**valid_department_kwargs())
-        per1.add_department(dep1)
-        per1.remove_department()
-        assert per1.department == None
-    def test_raises_error_when_no_department_present(self):
-        per1 = Permission(**valid_permission_kwargs())
-        with pytest.raises(ValueError,match="no department to remove"):
-            per1.remove_department()
+        with pytest.raises(TypeError,match="active must be a boolean value"):
+             per1.active = 1234
 
 class TestStoragePreparation:
     def test_permission_has_to_row_method(self):
@@ -138,20 +95,18 @@ class TestStoragePreparation:
         per1_row = per1.to_row()
         expected_keys = { 
         "name", 
-        "department"
+        "active"
         }
 
         assert expected_keys.issubset(per1_row.keys())
     def test_values_are_correct(self):
         per1 = Permission(**valid_permission_kwargs())
-        dep1 = Department(**valid_department_kwargs())
-        per1.add_department(dep1)
 
         per1_row = per1.to_row()
 
         expected = {
             "name": "per_1",
-            "department": dep1.id
+            "active": False
         }
         assert per1_row == expected
 
@@ -162,12 +117,8 @@ class TestReturnFromStorage:
         row = make_row(name="everything")
         perm = Permission.from_row(row)
         assert perm.name == "everything"
-    def test_from_row_empty_department_becomes_None(self):
-        row = make_row(department="")
-        perm = Permission.from_row(row)
-        assert perm.department == None
-    def test_from_row_missing_department_defaults_to_None(self):
+    def test_from_row_missing_active_defaults_to_None(self):
         row = make_row()
-        row.pop("department")
+        row.pop("active")
         perm = Permission.from_row(row)
-        assert perm.department == None
+        assert perm.active == False

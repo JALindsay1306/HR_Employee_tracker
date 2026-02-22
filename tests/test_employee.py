@@ -107,16 +107,14 @@ class TestEmployeeEnableToggle:
         assert emp.enabled == True
 
 class TestChangeName:
-    def test_employee_has_name_change_method(self):
-        assert hasattr(Employee,"change_name")
     def test_change_name_changes_name(self):
         emp = Employee(**valid_employee_kwargs())
-        emp.change_name("New Name")
+        emp.name = "New Name"
         assert emp.name == "New Name"
     @patch("employee_tracker.domain.employee.check_new_value")
     def test_check_new_value_called(self,mock_check_value):
         emp = Employee(**valid_employee_kwargs())
-        emp.change_name("New Name")
+        emp.name = "New Name"
         mock_check_value.assert_called_once_with(
             "New Name",
             "name",
@@ -125,16 +123,14 @@ class TestChangeName:
         )
 
 class TestChangeRole:
-    def test_employee_has_role_change_method(self):
-        assert hasattr(Employee,"change_role")
-    def test_change_name_changes_name(self):
+    def test_change_role_changes_role(self):
         emp = Employee(**valid_employee_kwargs())
-        emp.change_role("New Role")
+        emp.role = "New Role"
         assert emp.role == "New Role"
     @patch("employee_tracker.domain.employee.check_new_value")
     def test_check_new_value_called(self,mock_check_value):
         emp = Employee(**valid_employee_kwargs())
-        emp.change_role("New Role")
+        emp.role = "New Role"
         mock_check_value.assert_called_once_with(
             "New Role",
             "role",
@@ -143,16 +139,14 @@ class TestChangeRole:
         )
 
 class TestChangeSalary:
-    def test_employee_has_salary_change_method(self):
-        assert hasattr(Employee,"change_salary")
     def test_change_salary_changes_salary(self):
         emp = Employee(**valid_employee_kwargs())
-        emp.change_salary(100000)
+        emp.salary = 100000
         assert emp.salary == 100000
     @patch("employee_tracker.domain.employee.check_new_value")
     def test_check_new_value_called(self,mock_check_value):
         emp = Employee(**valid_employee_kwargs())
-        emp.change_salary(100000)
+        emp.salary = 100000
         mock_check_value.assert_called_once_with(
             100000,
             "salary",
@@ -161,16 +155,14 @@ class TestChangeSalary:
         )
 
 class TestChangeAddress:
-    def test_employee_has_address_change_method(self):
-        assert hasattr(Employee,"change_address")
     def test_change_address_changes_address(self):
         emp = Employee(**valid_employee_kwargs())
-        emp.change_address("123 New Lane")
+        emp.address = "123 New Lane"
         assert emp.address == "123 New Lane"
     @patch("employee_tracker.domain.employee.check_new_value")
     def test_check_new_value_called(self,mock_check_value):
         emp = Employee(**valid_employee_kwargs())
-        emp.change_address("123 New Lane")
+        emp.address = "123 New Lane"
         mock_check_value.assert_called_once_with(
             "123 New Lane",
             "address",
@@ -334,3 +326,4 @@ class TestReturnFromStorage:
         emp = Employee.from_row(row)
         assert emp.salary == 30000
         assert isinstance(emp.salary, int)
+

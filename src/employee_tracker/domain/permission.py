@@ -2,45 +2,43 @@ from employee_tracker.domain.department import Department
 from employee_tracker.utils.ids import check_id
 
 class Permission:
-    def __init__(self,name,department = None):
+    def __init__(self,name,active = False):
         if not isinstance(name,str):
             raise TypeError("Name must be a string")
-        if (not isinstance(department,str)) and (department != None):
-            raise TypeError("department must be a str")
-        self.name = name
-        self.department = department
-    def change_name(self,new_name):
+        if (not isinstance(active,bool)):
+            raise TypeError("active must be a boolean value")
+        self._name = name
+        self._active = active
+    @property
+    def name(self):
+        return self._name
+    @name.setter
+    def name(self,new_name):
         if not isinstance(new_name,str):
             raise TypeError("name must be a string")
         elif new_name == self.name:
             raise ValueError(f"name is already {new_name}")
-        self.name = new_name
-    def list_departments(self):
-        pass
-    def add_department(self,new_department):
-        if not isinstance(new_department,Department):
-            raise TypeError("department must be a Department")
-        elif not check_id(new_department.id,"dep"):
-            raise ValueError("invalid ID")
-        elif new_department.id == self.department:
-            raise ValueError(f"{new_department.name} is already the department, cannot replace with itself")
-        self.department = new_department.id
-    def remove_department(self):
-        if self.department == None:
-            raise ValueError("no department to remove")
-        self.department = None
+        self._name = new_name
+    @property
+    def active(self):
+        return self._active
+    @active.setter
+    def active(self,activate):
+        if not isinstance(activate,bool):
+            raise TypeError("active must be a boolean value")
+        self._active = activate
+    
     def to_row(self):
         return {
             "name":self.name,
-            "department":self.department 
+            "active":self.active 
         }
     @classmethod
     def from_row(cls, row: dict) -> "Permission":
-        dept = row.get("department")
-        if dept == "" or dept is None:
-            dept = None
-
+        active = False
+        if "active" in row:
+            active = row["active"]
         return cls(
             name=row["name"],
-            department=dept
+            active=active
         )

@@ -25,29 +25,63 @@ class Employee:
                 self.id = id
             else:
                 raise TypeError("Invalid ID")
-        self.name = name
-        self.role = role
-        self.start_date = start_date
-        self.permissions = permissions or []
-        self.salary = salary
-        self.address = address
-        self.enabled = True
+        self._name = name
+        self._role = role
+        self._start_date = start_date
+        self._permissions = permissions or []
+        self._salary = salary
+        self._address = address
+        self._enabled = True
     def salary_bump(self,uplift_percentage):
         self.salary = round(self.salary * (1 + uplift_percentage/100))
     def enable_disable(self):
         self.enabled = not self.enabled
-    def change_name(self,new_name):
-        if check_new_value(new_name,"name",str,self.name):
-            self.name = new_name
-    def change_role(self,new_role):
-        if check_new_value(new_role,"role",str,self.role):
-            self.role = new_role
-    def change_salary(self,new_salary):
-        if check_new_value(new_salary,"salary",int,self.salary):
-            self.salary = new_salary
-    def change_address(self,new_address):
-        if check_new_value(new_address,"address",str,self.address):
-            self.address = new_address
+    @property
+    def name(self):
+        return self._name
+    @name.setter
+    def name(self,new_name):
+        if check_new_value(new_name,"name",str,self._name):
+            self._name = new_name
+    @property
+    def role(self):
+        return self._role
+    @role.setter
+    def role(self,new_role):
+        if check_new_value(new_role,"role",str,self._role):
+            self._role = new_role
+    @property
+    def salary(self):
+        return self._salary
+    @salary.setter
+    def salary(self,new_salary):
+        if check_new_value(new_salary,"salary",int,self._salary):
+            self._salary = new_salary
+    @property
+    def address(self):
+        return self._address
+    @address.setter
+    def address(self,new_address):
+        if check_new_value(new_address,"address",str,self._address):
+            self._address = new_address
+    @property
+    def start_date(self):
+        return self._start_date
+    @start_date.setter
+    def start_date(self,new_start_date):
+        self._start_date = new_start_date
+    @property
+    def enabled(self):
+        return self._enabled
+    @enabled.setter
+    def enabled(self,new_enabled):
+        self._enabled = new_enabled
+    @property
+    def permissions(self):
+        return self._permissions
+    @permissions.setter
+    def permissions(self,new_permissions):
+        self._permissions = new_permissions
     def add_permission(self,permission):
         from employee_tracker.domain.permission import Permission
         if not isinstance(permission,Permission):
