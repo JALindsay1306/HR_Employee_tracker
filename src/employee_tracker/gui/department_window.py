@@ -1,10 +1,11 @@
 import tkinter as tk
 from datetime import date
-from tkinter import messagebox
+from tkinter import messagebox, ttk
 
 from employee_tracker.domain.tracker import Tracker
 from employee_tracker.utils.ids import check_id
 from employee_tracker.gui.add_members_window import AddMembersWindow
+from employee_tracker.gui.style import centre_window
 
 def parse_department_form(name: str, description: str, head_of_department: str, parent_department: str):
     name = name.strip()
@@ -28,84 +29,119 @@ def parse_department_form(name: str, description: str, head_of_department: str, 
     return dict(name=name,description=description,head_of_department=head_of_department,parent_department=parent_department)
 
 class DepartmentWindow(tk.Toplevel):
-    def __init__(self,parent:tk.Tk,tracker):
+    def __init__(self,parent:tk.Tk,tracker, permissions, logged_in_user):
         super().__init__(parent)
         self.tracker = tracker
         self.title("Department")
+        self.permissions = permissions or []
+        self.logged_in_user = logged_in_user
         
         self.department_ids = []
         self.member_employee_ids = []
         self.selected_department_id = None
         self.selected_employee_id = None
 
-        left = tk.Frame(self)
-        left.grid(row=0,column=0,padx=10,pady=10,sticky="n")
+        container = ttk.Frame(self, padding=16)
+        container.grid(row=0, column=0, sticky="nsew")
+        self.columnconfigure(0, weight=1)
+        self.rowconfigure(0, weight=1)
 
-        tk.Label(left,text="Departments").pack()
-        self.listbox = tk.Listbox(left,width=35,height=12, exportselection=False)
-        self.listbox.pack()
-        self.listbox.bind("<<ListboxSelect>>",self.on_select)
+        ttk.Label(container, text="Departments", style="Title.TLabel").grid(row=0, column=0, sticky="w", pady=(0, 10))
+
+        content = ttk.Frame(container)
+        content.grid(row=1, column=0, sticky="nsew")
+        content.columnconfigure(0, weight=1)
+        content.columnconfigure(1, weight=2)
+        content.columnconfigure(2, weight=2)
+        content.rowconfigure(0, weight=1)
+
+        # Left: department list
+        left = ttk.LabelFrame(content, text="Departments", padding=10)
+        left.grid(row=0, column=0, sticky="nsew", padx=(0, 12))
+        left.columnconfigure(0, weight=1)
+        left.rowconfigure(0, weight=1)
+
+        self.listbox = tk.Listbox(left, width=35, height=14, exportselection=False)
+        self.listbox.grid(row=0, column=0, sticky="nsew")
+        self.listbox.bind("<<ListboxSelect>>", self.on_select)
+
+        # Centre: form
+        centre = ttk.LabelFrame(content, text="Details", padding=10)
+        centre.grid(row=0, column=1, sticky="nsew", padx=(0, 12))
+        centre.columnconfigure(0, weight=1)
+
+        self.form_title_label = ttk.Label(centre, text="Create Department", style="Section.TLabel")
+        self.form_title_label.grid(row=0, column=0, sticky="w", pady=(0, 10))
+
+        form = ttk.Frame(centre)
+        form.grid(row=1, column=0, sticky="ew")
+        form.columnconfigure(0, weight=1)
+
+        def add_field(r, label):
+            ttk.Label(form, text=label).grid(row=r, column=0, sticky="w")
+            entry = ttk.Entry(form)
+            entry.grid(row=r + 1, column=0, sticky="ew", pady=(2, 10))
+            return entry
+
+        self.name_entry = add_field(0, "Name")
+        self.description_entry = add_field(2, "Description")
+        self.head_of_department_entry = add_field(4, "Head of Department (emp####)")
+        self.parent_department_entry = add_field(6, "Parent Department (dep####)")
+
+        # Buttons
+        btns = ttk.Frame(centre)
+        btns.grid(row=2, column=0, sticky="ew", pady=(0, 0))
+        btns.columnconfigure(0, weight=1)
+        btns.columnconfigure(1, weight=1)
+
+        self.create_button = ttk.Button(btns, text="Create", style="Primary.TButton", command=self.on_create)
+        self.update_button = ttk.Button(btns, text="Update", style="Primary.TButton", command=self.on_update)
+        self.delete_button = ttk.Button(btns, text="Delete", command=self.on_delete)
+
+        self.create_button.grid(row=0, column=0, columnspan=2, sticky="ew")
+        self.update_button.grid(row=0, column=0, sticky="ew")
+        self.delete_button.grid(row=0, column=1, sticky="ew", padx=(10, 0))
+
+        self.new_button = ttk.Button(centre, text="New / Deselect", command=self.deselect_department)
+        self.new_button.grid(row=3, column=0, sticky="ew", pady=(10, 0))
+
+        # Right: members
+        right = ttk.LabelFrame(content, text="Department Members", padding=10)
+        right.grid(row=0, column=2, sticky="nsew")
+        right.columnconfigure(0, weight=1)
+        right.rowconfigure(0, weight=1)
+
+        self.right_listbox = tk.Listbox(right, width=35, height=14, exportselection=False)
+        self.right_listbox.grid(row=0, column=0, sticky="nsew")
+        self.right_listbox.bind("<<ListboxSelect>>", self.on_select_member)
+
+        member_btns = ttk.Frame(right)
+        member_btns.grid(row=1, column=0, sticky="ew", pady=(10, 0))
+        member_btns.columnconfigure(0, weight=1)
+        member_btns.columnconfigure(1, weight=1)
+
+        self.add_members_button = ttk.Button(member_btns, text="Add members", command=self.open_add_members_window)
+        self.remove_member_button = ttk.Button(member_btns, text="Remove member", command=self.on_remove_member)
+        self.add_members_button.grid(row=0, column=0, sticky="ew")
+        self.remove_member_button.grid(row=0, column=1, sticky="ew", padx=(10, 0))
 
         self.bind("<Escape>", lambda e: self.deselect_department())
 
-        centre = tk.Frame(self)
-        centre.grid(row=0,column=1,padx=10,pady=10,sticky="n")
-
-        self.form_title_label = tk.Label(centre, text="Create Department")
-        self.form_title_label.grid(row=0, column=0, columnspan=2, pady=(0,10))
-
-        tk.Label(centre, text="Name").grid(row=1,column=0,sticky="e")
-        self.name_entry = tk.Entry(centre,width=25)
-        self.name_entry.grid(row=1,column=1)
-
-        tk.Label(centre,text="Description").grid(row=2, column=0,sticky="e")
-        self.description_entry = tk.Entry(centre,width=25)
-        self.description_entry.grid(row=2,column=1)
-
-        tk.Label(centre, text="Head of Department").grid(row=3,column=0,sticky="e")
-        self.head_of_department_entry = tk.Entry(centre,width=25)
-        self.head_of_department_entry.grid(row=3,column=1)
-
-        tk.Label(centre,text="Parent_Department").grid(row=4,column=0,sticky="e")
-        self.parent_department_entry = tk.Entry(centre,width=25)
-        self.parent_department_entry.grid(row=4,column=1)
-
-        btn_row = 5
-
-        self.create_button = tk.Button(centre, text="Create", command=self.on_create)
-        self.create_button.grid(row=btn_row, column=0, columnspan=2, pady=10,sticky="ew")
-        
-        self.update_button = tk.Button(centre, text="Update", command=self.on_update)
-        self.delete_button = tk.Button(centre, text="Delete", command=self.on_delete)
-
-        self.update_button.grid(row=btn_row, column=0, pady=10, sticky="ew")
-        self.delete_button.grid(row=btn_row, column=1, pady=10, sticky="ew")
-        self.update_button.grid_remove()
-        self.delete_button.grid_remove()
-
-        self.new_button = tk.Button(centre, text="New/Deselect", command=self.deselect_department)
-        self.new_button.grid(row=btn_row + 1, column=0, columnspan=2, pady=(0,5), sticky="ew")
-        self.new_button.grid_remove()
-
-        right = tk.Frame(self)
-        right.grid(row=0,column=2,padx=10,pady=10,sticky="n")
-
-        tk.Label(right,text="Department Members").pack()
-        self.right_listbox = tk.Listbox(right,width=35,height=12, exportselection=False)
-        self.right_listbox.pack()
-        self.right_listbox.bind("<<ListboxSelect>>",self.on_select_member)
-
-        btns = tk.Frame(right)
-        btns.pack(pady=(10,0), fill="x")
-
-        self.add_members_button = tk.Button(btns, text="Add members", command=self.open_add_members_window)
-        self.add_members_button.pack(side="left", expand=True, fill="x")
-
-        self.remove_member_button = tk.Button(btns, text="Remove member", command=self.on_remove_member)
-        self.remove_member_button.pack(side="left", padx=(8, 0), expand=True, fill="x")
-
+        centre_window(self, 980, 520)
         self.refresh_list()
         self.set_mode_create()
+
+    def has_perms(self,add_employee = False) -> bool:
+        if any(p in self.permissions for p in ["it_admin", "hr_write"]):
+            return True
+        if add_employee:
+            if self.selected_department_id is None:
+                return False
+            dep = self.tracker.departments.get(self.selected_department_id)
+            if dep is None:
+                return False
+            return dep.head_of_department == self.logged_in_user
+        return False
 
     def clear_form(self):
         self.name_entry.delete(0,tk.END)
@@ -121,6 +157,10 @@ class DepartmentWindow(tk.Toplevel):
         self.delete_button.grid_remove()
         self.new_button.grid_remove()
         self.create_button.grid()
+
+        self.right_listbox.delete(0, tk.END)
+        self.member_employee_ids = []
+        self.selected_employee_id = None
 
     def set_mode_edit(self):
         self.form_title_label.config(text="Edit Department")
@@ -158,6 +198,11 @@ class DepartmentWindow(tk.Toplevel):
        
     
     def on_create(self):
+
+        if not self.has_perms():
+            messagebox.showerror("Create department failed", "You do not have permission to create a department")
+            return
+        
         try:
             data = parse_department_form(
                 self.name_entry.get(),
@@ -167,32 +212,43 @@ class DepartmentWindow(tk.Toplevel):
             )
 
             self.tracker.create_department(**data)
+
             self.refresh_list()
-
             self.clear_form()
-
             self.set_mode_create()
+
         except Exception as err:
             messagebox.showerror("Create department failed",str(err))
     
     def on_update(self):
+        if not self.has_perms():
+            messagebox.showerror("Update department failed", "You do not have permission to edit a department")
+            return
+        
         if self.selected_department_id is None:
             messagebox.showerror("Update department failed", "No department selected.")
             return
+        
+        dep = self.tracker.departments[self.selected_department_id]
 
         try:
             data = parse_department_form(
                 self.name_entry.get(),
                 self.description_entry.get(),
                 self.head_of_department_entry.get(),
-                self.parent_department_entry.get(),
+                self.parent_department_entry.get()
             )
+            
+            if dep.name != data["name"]:
+                dep.name = data["name"]
 
-            dep = self.tracker.department[self.selected_department_id]
-            dep.name = data["name"]
-            dep.description = data["description"]
-            dep.head_of_department = data["head_of_department"]
-            if data["parent_department"]:
+            if dep.description != data["description"]:
+                dep.name = data["description"]
+
+            if dep.head_of_department != data["head_of_department"]:
+                dep.head_of_department = data["head_of_department"]
+
+            if dep.parent_department != data["parent_department"]:
                 dep.parent_department = data["parent_department"]
 
             self.refresh_list()
@@ -205,10 +261,16 @@ class DepartmentWindow(tk.Toplevel):
                 pass
 
             self.set_mode_edit()
+            self.refresh_members(dep)
+
         except Exception as err:
             messagebox.showerror("Update department failed", str(err))
 
     def on_delete(self):
+        if not self.has_perms():
+            messagebox.showerror("Delete department failed", "You do not have permission to delete a department")
+            return
+        
         if self.selected_department_id is None:
             messagebox.showerror("Delete department failed", "No department selected.")
             return
@@ -252,6 +314,9 @@ class DepartmentWindow(tk.Toplevel):
         self.refresh_members(dep)
 
     def open_add_members_window(self):
+        if not self.has_perms(add_employee=True):
+            messagebox.showerror("Add members", "You do not have permission to add members to this department.")
+            return
         if self.selected_department_id is None:
             messagebox.showerror("Add members","Select a department first.")
             return
@@ -272,6 +337,10 @@ class DepartmentWindow(tk.Toplevel):
         self.selected_employee_id = self.member_employee_ids[idx]
 
     def on_remove_member(self):
+        print(self.logged_in_user,self.tracker.departments[self.selected_department_id].head_of_department)
+        if not self.has_perms(add_employee=True):
+            messagebox.showerror("Remove member failed", "You do not have permission to remove members from this department.")
+            return
         if self.selected_department_id is None:
             messagebox.showerror("Remove member failed", "No department selected")
             return
@@ -295,9 +364,14 @@ class DepartmentWindow(tk.Toplevel):
             return
         dep = self.tracker.departments[self.selected_department_id]
         self.refresh_members(dep)
+    def refresh(self):
+        self.refresh_list()
+        self.deselect_department()
 
 
 if __name__ == "__main__":
     tracker = Tracker()
-    app = DepartmentWindow(None, tracker)
+    root = tk.Tk()
+    root.withdraw()
+    app = DepartmentWindow(root, tracker, logged_in_user="emp0001", permissions=[])
     app.mainloop()

@@ -1,7 +1,8 @@
 import tkinter as tk
-from tkinter import messagebox
+from tkinter import messagebox, ttk
 
 from employee_tracker.domain.tracker import Tracker
+from employee_tracker.gui.style import centre_window
 
 class AddMembersWindow(tk.Toplevel):
     def __init__(self,parent:tk.Tk,tracker:Tracker,dep_id:str,on_done=None):
@@ -16,38 +17,44 @@ class AddMembersWindow(tk.Toplevel):
         self.transient(parent)
         self.grab_set()
 
-        top = tk.Frame(self)
-        top.grid(row=0, column=0, padx=10, pady=10, sticky="ew")
+        container = ttk.Frame(self, padding=16)
+        container.grid(row=0, column=0, sticky="nsew")
+        self.rowconfigure(0,weight=1)
+        self.columnconfigure(0,weight=1)
+        container.columnconfigure(0, weight=1)
 
-        tk.Label(top, text="Search Employees").grid(row=0, column=0, sticky="w")
-        self.search_entry = tk.Entry(top, width=30)
-        self.search_entry.grid(row=1, column=0, sticky="ew", pady=(2,0))
+        ttk.Label(container, text="Add members", style="Title.TLabel").grid(row=0, column=0, sticky="w", pady=(0, 10))
+
+        search_frame = ttk.LabelFrame(container, text="Search", padding=10)
+        search_frame.grid(row=1, column=0, sticky="ew")
+        search_frame.columnconfigure(0, weight=1)
+
+        self.search_entry = ttk.Entry(search_frame)
+        self.search_entry.grid(row=0, column=0, sticky="ew")
         self.search_entry.bind("<KeyRelease>", lambda e: self.refresh_employee_list())
 
-        mid = tk.Frame(self)
-        mid.grid(row=1, column=0, padx=10, pady=(0,10), sticky="nsew")
+        list_frame = ttk.LabelFrame(container, text="Employees (Ctrl/Shift-click to multi-select)", padding=10)
+        list_frame.grid(row=2, column=0, sticky="nsew", pady=(12, 0))
+        list_frame.columnconfigure(0, weight=1)
 
-        tk.Label(mid, text="All employees (Ctrl/Shift-click to multi-select)").pack(anchor="w")
-        self.emp_listbox = tk.Listbox(mid, width=50, height=14, selectmode=tk.EXTENDED)
-        self.emp_listbox.pack()
+        self.emp_listbox = tk.Listbox(list_frame, width=55, height=14, selectmode=tk.EXTENDED, exportselection=False)
+        self.emp_listbox.grid(row=0, column=0, sticky="nsew")
 
         self.emp_ids = []
 
-        bottom = tk.Frame(self)
-        bottom.grid(row=2, column=0, padx=10, pady=(0,10), sticky="ew")
+        btns = ttk.Frame(container)
+        btns.grid(row=3, column=0, sticky="ew", pady=(14, 0))
+        btns.columnconfigure(0, weight=1)
+        btns.columnconfigure(1, weight=1)
 
-        self.add_button = tk.Button(bottom, text="Add Selected", command=self.on_add_selected)
-        self.add_button.grid(row=0, column=0,sticky="ew")
-
-        self.close_button = tk.Button(bottom, text="Close", command=self.destroy)
-        self.close_button.grid(row=0, column=1, padx=(10,0), sticky="ew")
-
-        bottom.grid_columnconfigure(0,weight=1)
-        bottom.grid_columnconfigure(1,weight=1)
-
-        self.refresh_employee_list()
+        ttk.Button(btns, text="Add selected", style="Primary.TButton", command=self.on_add_selected).grid(row=0, column=0, sticky="ew")
+        ttk.Button(btns, text="Close", command=self.destroy).grid(row=0, column=1, sticky="ew", padx=(10, 0))
 
         self.bind("<Escape>", lambda e: self.destroy())
+
+        centre_window(self, 520, 520)
+        self.refresh_employee_list()
+        self.search_entry.focus_set()
 
     def refresh_employee_list(self):
         search = self.search_entry.get().strip().lower()

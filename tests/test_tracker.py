@@ -598,6 +598,8 @@ class TestStorageManagement:
                 return pd.DataFrame(columns=["id", "name", "description", "head_of_department", "parent_department", "members"])
             if file_type == "permissions":
                 return pd.DataFrame(columns=["name", "department"])
+            if file_type == "users":
+                return pd.DataFrame(columns=["id", "password_hash"])
             raise ValueError(file_type)
 
         monkeypatch.setattr(tracker_module, "read_csv", fake_read_csv)

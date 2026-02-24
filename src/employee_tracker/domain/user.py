@@ -23,4 +23,17 @@ class User:
         if not is_valid_stored_password_hash(new_password_hash):
             raise ValueError("not a valid password hash")
         self._password_hash = new_password_hash
+
+    def to_row(self):
+        return {
+            "id":self.id,
+            "password_hash":self.password_hash,
+        }
+    @classmethod
+    def from_row(cls, row: dict) -> "User":
+        
+        return cls(
+            id=row["id"],
+            password_hash=row["password_hash"],
+        )
     

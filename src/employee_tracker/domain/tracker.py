@@ -137,7 +137,16 @@ class Tracker:
         if self.permissions:
             perm_df = create_dataframe(self.permissions.values())
             write_csv("permissions", perm_df)
+        if self.users:
+            perm_df = create_dataframe(self.users.values())
+            write_csv("users", perm_df)
 
+    def reload_from_storage(self):
+        loaded = Tracker.load_from_storage()
+        self.employees = loaded.employees
+        self.departments = loaded.departments
+        self.permissions = loaded.permissions
+        self.users = loaded.users
 
     @classmethod
     def load_from_storage(cls):
@@ -158,6 +167,15 @@ class Tracker:
                 tracker.departments[dep.id] = dep
         except FileNotFoundError:
             raise FileNotFoundError("no departments file found, please check data folder")
+
+        try:
+            usr_df = read_csv("users")
+            for row in usr_df.to_dict(orient="records"):
+                usr=User.from_row(row)
+                tracker.users[usr.id] = usr
+        except FileNotFoundError:
+            raise FileNotFoundError("no users file found, please check data folder")
+
 
         try:
             perm_df = read_csv("permissions")

@@ -152,7 +152,7 @@ def generate_sample_data() -> Tracker:
         start_date=date(2018, 4, 2),
         salary=82000,
         address="11 Harbour Road, Southampton",
-        permissions=["payroll"],
+        permissions=["finance_edit"],
         password="Natalie@123"
     )
 

@@ -1,35 +1,133 @@
 import tkinter as tk
+from tkinter import ttk
+from tkinter import messagebox
 
 from employee_tracker.domain.tracker import Tracker
 from employee_tracker.gui.employee_window import EmployeeWindow
 from employee_tracker.gui.department_window import DepartmentWindow
+from employee_tracker.gui.login_window import LoginWindow
+from employee_tracker.gui.style import apply_style, centre_window
 
 
 class MainWindow:
     def __init__(self,tracker:Tracker):
         self.tracker = tracker
+        self.active_emp_id = None
+        self.active_permissions = []
+        self._child_windows = []
+
         self.root = tk.Tk()
         self.root.title("HR Employee Tracker")
 
-        tk.Label(self.root,text="HR Employee Tracker", font=("Sans Serif", 15)).pack(pady=10)
+        apply_style(self.root)
+        centre_window(self.root,420,420)
 
-        tk.Button(self.root,text="Employees",width=20, command=self.open_employees).pack(pady=5)
-        tk.Button(self.root, text="Departments", width=20,command=self.open_departments).pack(pady=5)
+        container = ttk.Frame(self.root, padding=18)
+        container.grid(row=0, column=0,sticky="nsew")
+        self.root.rowconfigure(0,weight=1)
+        self.root.columnconfigure(0,weight=1)
 
-        tk.Button(self.root, text="Load",width=20, command=self.load).pack(pady=15)
-        tk.Button(self.root, text="Save",width=20, command=self.save).pack(pady=15)
-        tk.Button(self.root, text="Quit",width=20, command=self.root.destroy).pack(pady=15)
+        container.columnconfigure(0,weight=1)
+
+        ttk.Label(container,text="HR Employee Tracker", style="Title.TLabel").grid(row=0,column=0,sticky="w")
+
+        self.status_var = tk.StringVar(value="Not signed in")
+        ttk.Label(container, textvariable=self.status_var).grid(row=1,column=0,sticky="w",pady=(2,14))
+
+        actions = ttk.LabelFrame(container, text="Actions", padding=12)
+        actions.grid(row=2, column=0, sticky="ew")
+        actions.columnconfigure(0,weight=1)
+
+        self.btn_employees = ttk.Button(actions, text="Employees", command=self.open_employees)
+        self.btn_departments = ttk.Button(actions, text="Departments", command=self.open_departments)
+        
+        self.btn_employees.grid(row=0,column=0, sticky="ew", pady=(0,8))
+        self.btn_departments.grid(row=1,column=0,sticky="ew")
+
+        storage = ttk.LabelFrame(container, text="Storage", padding=12)
+        storage.grid(row=3, column=0, sticky="ew", pady=(12,0))
+        storage.columnconfigure(0,weight=1)
+        storage.columnconfigure(1,weight=1)
+
+        self.btn_load = ttk.Button(storage, text="Load", command=self.load)
+        self.btn_save = ttk.Button(storage, text="Save", command=self.save)
+        self.btn_load.grid(row=0, column=0, sticky="ew")
+        self.btn_save.grid(row=0, column=1, sticky="ew", padx=(10, 0))
+
+        session = ttk.Frame(container)
+        session.grid(row=4, column=0, sticky="ew", pady=(18, 0))
+        session.columnconfigure(0, weight=1)
+        session.columnconfigure(1, weight=1)
+
+        self.btn_logout = ttk.Button(session, text="Logout", command=self.logout)
+        self.btn_quit = ttk.Button(session, text="Quit", command=self.root.destroy)
+        self.btn_logout.grid(row=0, column=0, sticky="ew")
+        self.btn_quit.grid(row=0, column=1, sticky="ew", padx=(10, 0))
+
+        self.set_logged_in(False)
+        self.root.after(0,self.show_login)
+
+    def set_logged_in(self,is_logged_in:bool):
+        state = "normal" if is_logged_in else "disabled"
+        self.btn_employees.config(state=state)
+        self.btn_departments.config(state=state)
+        self.btn_load.config(state=state)
+        self.btn_save.config(state=state)
+
+    def logout(self):
+        self.logged_in_user = None
+        self.active_permissions = []
+        self.root.title("HR Employee Tracker")
+        self.status_var.set("Not signed in")
+        self.set_logged_in(False)
+        self.root.after(0,self.show_login)
+
+    def show_login(self):
+        LoginWindow(self.root, self.tracker,self.on_login_success)
+
+    def on_login_success(self, permissions, emp_id):
+        self.active_permissions = permissions or []
+        self.logged_in_user = emp_id
+        self.set_logged_in(True)
+
+        self.root.title(f"HR Employee Tracker - Logged in as {emp_id}")
+        perms = ", ".join(self.active_permissions) if self. active_permissions else "none"
+        self.status_var.set(f"signed in as {emp_id} - Permissions: {perms}")
 
     def open_employees(self):
-        EmployeeWindow(self.root,self.tracker)
+        win = EmployeeWindow(self.root,self.tracker,self.active_permissions,self.logged_in_user)
+        self._track_child(win)
+
     def open_departments(self):
-        DepartmentWindow(self.root,self.tracker)
+        win = DepartmentWindow(self.root,self.tracker,self.active_permissions,self.logged_in_user)
+        self._track_child(win)
+
     def load(self):
-        self.tracker = Tracker.load_from_storage()
+        try:
+            self.tracker.reload_from_storage()
+            for w in list(self._child_windows):
+                if hasattr(w, "refresh"):
+                    w.refresh()
+            messagebox.showinfo("Loaded", "Data loaded successfully")
+        except Exception as err:
+            messagebox.showerror("Load Error", err)
+
     def save(self):
-        self.tracker.save_to_storage()
+        try:
+            self.tracker.save_to_storage()
+            messagebox.showinfo("Saved", "Data saved successfully")
+        except Exception as err:
+            messagebox.showerror("Save Error", err)
+    
     def run(self):
         self.root.mainloop()
+    
+    def _track_child(self, w):
+        self._child_windows.append(w)
+        w.bind("<Destroy>", lambda e, win=w: self._untrack_child(win))
+
+    def _untrack_child(self, win):
+        self._child_windows = [w for w in self._child_windows if w is not win]
 
 def run_app():
     tracker = Tracker.load_or_create_sample()
