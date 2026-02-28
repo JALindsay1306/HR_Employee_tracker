@@ -19,11 +19,11 @@ def hash_password(password: str) -> str:
     return base64.b64encode(salt + key).decode("utf-8")
 
 # password is checked, by splitting stored hash, and using salt value to hash check value.
+### AI DECLARATION - this hashing function was originally created by AI, the developer implemented once learnings had been sought on implementation of hashing and salts
 def verify_password(password:str, stored_hash: str) -> bool:
     decoded = base64.b64decode(stored_hash.encode("utf-8"))
     salt = decoded[:16]
     stored_key = decoded[16:]
-
     new_key = hashlib.pbkdf2_hmac(
         "sha256",
         password.encode("utf-8"),

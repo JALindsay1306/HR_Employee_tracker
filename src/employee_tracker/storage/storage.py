@@ -4,6 +4,8 @@ from pathlib import Path
 DATA_DIR = Path(__file__).resolve().parent.parent / "data"
 
 # takes lists of classes, invokes "to_row" methods, and then builds a pandas dataframe
+### AI DECLARATION - ChatGPT was used to cement learnings from lectures on saving to CSV
+# Initial intention was to save to a SQL database for more secure storage, but this was abandoned for reasons of time pressure
 def create_dataframe(dataset):
     if len(dataset) == 0:
         raise ValueError("No data to save, please check")

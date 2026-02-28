@@ -2,6 +2,7 @@ import uuid
 
 # Creates an id, with a passed prefix, followed by an underscore and an 8 digit hex number
 def new_id(prefix: str) -> str:
+    ### AI DECLARATION - the uuid usage was learned via ChatGPT, along with utilisation of "hex"
     return f"{prefix}_{uuid.uuid4().hex[:8]}"
 
 

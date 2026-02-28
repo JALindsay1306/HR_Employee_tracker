@@ -143,6 +143,7 @@ class Department:
             "parent_department":self.parent_department,
             "members":" ".join(self.members) 
         }
+    ### AI declaration - the usage of class methods to solve a problem I was having with loading from storage was suggested by AI
     @classmethod
     def from_row(cls, row: dict) -> "Department":
         # Class method so this can be called before a class object exists (it creates the object itself)

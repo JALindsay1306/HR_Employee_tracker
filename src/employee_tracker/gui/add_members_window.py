@@ -4,6 +4,8 @@ from tkinter import messagebox, ttk
 from employee_tracker.domain.tracker import Tracker
 from employee_tracker.gui.style import centre_window
 
+### AI DECLARATION - ChatGPT was used in the creation of GUI elements, given the creator's lack of experience in front-end
+
 # This window is launched as a child of the department window. 
 class AddMembersWindow(tk.Toplevel):
     def __init__(self,parent:tk.Tk,tracker:Tracker,dep_id:str,on_done=None):
@@ -20,6 +22,7 @@ class AddMembersWindow(tk.Toplevel):
         self.transient(parent)
         self.grab_set()
 
+        ### AI Declaration - implementation of ttk for homogenised styling was strongly aided by AI
         # Container for the window built with ttk
         container = ttk.Frame(self, padding=16)
         container.grid(row=0, column=0, sticky="nsew")
@@ -38,10 +41,10 @@ class AddMembersWindow(tk.Toplevel):
         # Search for employees
         self.search_entry = ttk.Entry(search_frame)
         self.search_entry.grid(row=0, column=0, sticky="ew")
-        # Employee list refreshes as the user is typing rather than on a button press
+        # Employee list refreshes as the user is typing rather than on a button press -  this suggestion was made by an LLM
         self.search_entry.bind("<KeyRelease>", lambda e: self.refresh_employee_list())
 
-        # List frame showing employees
+        # List frame showing employees, this was aided by ChatGPT
         list_frame = ttk.LabelFrame(container, text="Employees (Ctrl/Shift-click to multi-select)", padding=10)
         list_frame.grid(row=2, column=0, sticky="nsew", pady=(12, 0))
         list_frame.columnconfigure(0, weight=1)

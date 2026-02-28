@@ -4,7 +4,7 @@ from employee_tracker.domain.tracker import Tracker
 from employee_tracker.storage.storage import DATA_DIR
 
 # Simple utility that prepopulates any missing csv files so that program can be run easily without error
-
+### AI DECLARATION - the content in this function was AI generated, in order to have a meaningful number of assets to work with in testing
 def generate_sample_data() -> Tracker:
     tracker = Tracker()
 

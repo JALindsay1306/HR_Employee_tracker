@@ -9,6 +9,7 @@ from employee_tracker.gui.login_window import LoginWindow
 from employee_tracker.gui.style import apply_style, centre_window
 
 # Top level window
+### AI DECLARATION - ChatGPT was used in the creation of GUI elements, given the creator's lack of experience in front-end
 class MainWindow:
     def __init__(self,tracker:Tracker):
         self.tracker = tracker
@@ -135,6 +136,7 @@ class MainWindow:
         self.root.mainloop()
     
     # Part of ensuring loaded changes are viewed by child windows
+     ### AI Declaration - track_child was added as a suggestion from an LLM. Helping to create a seamless app where data can be loaded to everywhere
     def _track_child(self, w):
         self._child_windows.append(w)
         w.bind("<Destroy>", lambda e, win=w: self._untrack_child(win))
@@ -143,9 +145,9 @@ class MainWindow:
         self._child_windows = [w for w in self._child_windows if w is not win]
 
 def run_app():
-    # usese load_or_create to account for missing data
+    # uses load_or_create to account for missing data
     tracker = Tracker.load_or_create_sample()
     MainWindow(tracker).run()
-    
+
 if __name__ == "__main__":
     run_app()

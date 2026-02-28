@@ -4,6 +4,7 @@ from tkinter import messagebox, ttk
 from employee_tracker.gui.style import centre_window
 
 # Window for updating password
+### AI DECLARATION - ChatGPT was used in the creation of GUI elements, given the creator's lack of experience in front-end
 class PasswordDialog(tk.Toplevel):
     def __init__(self, parent, title = "Set Password"):
         super().__init__(parent)

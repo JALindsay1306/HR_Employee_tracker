@@ -7,6 +7,8 @@ from employee_tracker.utils.ids import check_id
 from employee_tracker.gui.add_members_window import AddMembersWindow
 from employee_tracker.gui.style import centre_window
 
+### AI DECLARATION - ChatGPT was used in the creation of GUI elements, given the creator's lack of experience in front-end
+
 # Function for error handling of fields for creation of new departments. This is in addition to the validation in the Department constructor
 def parse_department_form(name: str, description: str, head_of_department: str, parent_department: str):
     name = name.strip()
@@ -54,6 +56,7 @@ class DepartmentWindow(tk.Toplevel):
 
         # Main content frame
         content = ttk.Frame(container)
+        ### AI Declaration - "sticky" was an addition made by an LLM, which after the developer looked into it, was applied app-wide
         content.grid(row=1, column=0, sticky="nsew")
         content.columnconfigure(0, weight=1)
         content.columnconfigure(1, weight=2)
@@ -139,6 +142,9 @@ class DepartmentWindow(tk.Toplevel):
         self.refresh_list()
         self.set_mode_create()
 
+    ### AI Declaration - when initially implementing this function, an LLM produced code for a full "state" implementation.
+    ### This was difficult to follow, and rather than utilising code that the developer did not understand, it was decided to
+    ### stick with a system of "logged_in_user" and "permissions" that would be checked by a series of methods like the below
     # Permission checker
     def has_perms(self,add_employee = False) -> bool:
         # First checks if it_admin or hr_write (super permissions) are presnt
@@ -212,6 +218,7 @@ class DepartmentWindow(tk.Toplevel):
                 self.right_listbox.insert(tk.END, f"{emp_id} (missing employee)")
             else:
                 self.member_employee_ids.append(emp.id)
+                ### AI DECLARATION - this sort of functionality of inserting visual assets outside of the initialiser was something that was instructed by ChatGPT
                 self.right_listbox.insert(tk.END, f"{emp.id} {emp.name} ({emp.role})")
        
     

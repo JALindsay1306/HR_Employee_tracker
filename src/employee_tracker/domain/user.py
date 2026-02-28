@@ -3,7 +3,7 @@ from employee_tracker.utils.ids import check_id
 
 # This class is used as part of the login process. In future updates this might be removed.
 # The initial intention was to have this load before any other data, and other data not be loaded before login
-# In practice, all data is loaded simultaneously
+# In practice, all data is loaded simultaneously in order to simplify load process
 class User:
     def __init__(self,id,password_hash):
         if not is_valid_stored_password_hash(password_hash):

@@ -6,6 +6,7 @@ from employee_tracker.auth.login import login
 from employee_tracker.gui.style import centre_window
 
 # GUI to utilise login functionality
+### AI DECLARATION - ChatGPT was used in the creation of GUI elements, given the creator's lack of experience in front-end
 class LoginWindow(tk.Toplevel):
     def __init__(self,parent,tracker,on_success):
         super().__init__(parent)
@@ -47,6 +48,7 @@ class LoginWindow(tk.Toplevel):
         ttk.Button(btns, text="Quit", command=self.quit_app).grid(row=0, column=1, sticky="ew", padx=(10, 0))
 
         # Loads above parent as a dependent, grabs focus. If the user closes the login window then the full app closes
+        ### AI Declaration - this was added as a suggestion from an LLM
         self.transient(parent)
         self.grab_set()
         self.protocol("WM_DELETE_WINDOW", self.quit_app)

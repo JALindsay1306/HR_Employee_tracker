@@ -6,6 +6,7 @@ from employee_tracker.domain.tracker import Tracker
 from employee_tracker.gui.new_password import PasswordDialog
 from employee_tracker.gui.style import centre_window
 
+### AI DECLARATION - ChatGPT was used in the creation of GUI elements, given the creator's lack of experience in front-end
 
 # Parsing field inputs
 def parse_employee_form(name: str, role: str, start_date_str: str, salary_str: str, address: str):
@@ -121,7 +122,8 @@ class EmployeeWindow(tk.Toplevel):
         self.refresh_list()
         self.set_mode_create()
 
-    # calls later method to check read-write permissions, then changes form fields appropriately
+    # Applies view/edit permissions to each form field based on the
+    # selected employee and the current user's role.
     def apply_parameter_permissions(self):
         view, edit = self.parameter_view_write()
 
@@ -187,24 +189,25 @@ class EmployeeWindow(tk.Toplevel):
 
         return view, edit
     
-    # More functionality to ensure that appropriate fields are editable
+    # Sets the value of an entry widget and configures whether it is editable or disabled.
     def set_entry_value(self,entry: tk.Entry, value: str, editable: bool):
         entry.config(state="normal")
         entry.delete(0,tk.END)
         entry.insert(0, value)
         entry.config(state=("normal" if editable else "disabled"))
 
-    # More functionality to ensure that appropriate fields are hidden
+    # Masks a field by setting its value to "Hidden" and optionally disabling editing.
     def set_entry_hidden(self,entry: tk.Entry, editable: bool = False):
         self.set_entry_value(entry, "Hidden", editable=editable)
     
-    # initial check for permissions
+    # Returns True if the user has at least one of the required permissions,
+    # with "it_admin" acting as a superuser override.
     def has_perms(self,required:list) -> bool:
         if "it_admin" in self.permissions:
             return True
         return any(permission in self.permissions for permission in required)
             
-    # Clearing of all fields
+    # Clearing of all input fields
     def clear_form(self):
         self.name_entry.delete(0,tk.END)
         self.role_entry.delete(0,tk.END)

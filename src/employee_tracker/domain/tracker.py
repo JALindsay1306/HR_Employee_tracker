@@ -171,6 +171,7 @@ class Tracker:
         self.users = loaded.users
 
     # To be used on initial startup, this class method can be called before a tracker exists in order to use presaved data
+    ### AI DECLARATION - Usage of class methods was as a result of suggestions from an LLM 
     @classmethod
     def load_from_storage(cls):
         tracker = cls()

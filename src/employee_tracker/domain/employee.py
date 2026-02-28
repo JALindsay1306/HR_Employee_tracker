@@ -151,6 +151,7 @@ class Employee:
             "permissions":" ".join(self.permissions) 
         }
     #Class method to load from storage, so it can be called before the object exists
+    ### AI Declaration - The usage of class methods was a result of a suggestion from an LLM
     @classmethod
     def from_row(cls, row: dict) -> "Employee":
         start_date = row["start_date"]
