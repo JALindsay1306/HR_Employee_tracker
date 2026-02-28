@@ -7,6 +7,7 @@ from employee_tracker.utils.ids import check_id
 from employee_tracker.gui.add_members_window import AddMembersWindow
 from employee_tracker.gui.style import centre_window
 
+# Function for error handling of fields for creation of new departments. This is in addition to the validation in the Department constructor
 def parse_department_form(name: str, description: str, head_of_department: str, parent_department: str):
     name = name.strip()
     description = description.strip()
@@ -28,6 +29,8 @@ def parse_department_form(name: str, description: str, head_of_department: str, 
     
     return dict(name=name,description=description,head_of_department=head_of_department,parent_department=parent_department)
 
+
+# ttk window creation passing in tracker, user and permissions
 class DepartmentWindow(tk.Toplevel):
     def __init__(self,parent:tk.Tk,tracker, permissions, logged_in_user):
         super().__init__(parent)
@@ -41,6 +44,7 @@ class DepartmentWindow(tk.Toplevel):
         self.selected_department_id = None
         self.selected_employee_id = None
 
+        # Creation of master frame
         container = ttk.Frame(self, padding=16)
         container.grid(row=0, column=0, sticky="nsew")
         self.columnconfigure(0, weight=1)
@@ -48,6 +52,7 @@ class DepartmentWindow(tk.Toplevel):
 
         ttk.Label(container, text="Departments", style="Title.TLabel").grid(row=0, column=0, sticky="w", pady=(0, 10))
 
+        # Main content frame
         content = ttk.Frame(container)
         content.grid(row=1, column=0, sticky="nsew")
         content.columnconfigure(0, weight=1)
@@ -76,6 +81,8 @@ class DepartmentWindow(tk.Toplevel):
         form = ttk.Frame(centre)
         form.grid(row=1, column=0, sticky="ew")
         form.columnconfigure(0, weight=1)
+
+        # Function to populate form fields
 
         def add_field(r, label):
             ttk.Label(form, text=label).grid(row=r, column=0, sticky="w")
@@ -120,6 +127,7 @@ class DepartmentWindow(tk.Toplevel):
         member_btns.columnconfigure(0, weight=1)
         member_btns.columnconfigure(1, weight=1)
 
+        # Buttons to add and remove members, both calling methods
         self.add_members_button = ttk.Button(member_btns, text="Add members", command=self.open_add_members_window)
         self.remove_member_button = ttk.Button(member_btns, text="Remove member", command=self.on_remove_member)
         self.add_members_button.grid(row=0, column=0, sticky="ew")
@@ -131,10 +139,13 @@ class DepartmentWindow(tk.Toplevel):
         self.refresh_list()
         self.set_mode_create()
 
+    # Permission checker
     def has_perms(self,add_employee = False) -> bool:
+        # First checks if it_admin or hr_write (super permissions) are presnt
         if any(p in self.permissions for p in ["it_admin", "hr_write"]):
             return True
         if add_employee:
+            # Then, for add employee, checks if the logged in user is the department head
             if self.selected_department_id is None:
                 return False
             dep = self.tracker.departments.get(self.selected_department_id)
@@ -143,12 +154,14 @@ class DepartmentWindow(tk.Toplevel):
             return dep.head_of_department == self.logged_in_user
         return False
 
+    # Clears the form of text
     def clear_form(self):
         self.name_entry.delete(0,tk.END)
         self.description_entry.delete(0,tk.END)
         self.head_of_department_entry.delete(0,tk.END)
         self.parent_department_entry.delete(0,tk.END)
 
+    # Switches from viewing details of existing departments to a form to create a new one
     def set_mode_create(self):
         self.selected_department_id = None
         self.form_title_label.config(text="Create Department")
@@ -162,6 +175,7 @@ class DepartmentWindow(tk.Toplevel):
         self.member_employee_ids = []
         self.selected_employee_id = None
 
+    # Switches back to viewing and editing (with permission) departments
     def set_mode_edit(self):
         self.form_title_label.config(text="Edit Department")
 
@@ -170,11 +184,13 @@ class DepartmentWindow(tk.Toplevel):
         self.delete_button.grid()
         self.new_button.grid()
 
+    # When no department is selected, create mode is the default
     def deselect_department(self):
         self.listbox.selection_clear(0,tk.END)
         self.clear_form()
         self.set_mode_create()
 
+    # When the list changes (new addition or edit/delete), the list is refreshed to stay current
     def refresh_list(self):
         self.listbox.delete(0, tk.END)
         self.department_ids = []
@@ -182,6 +198,7 @@ class DepartmentWindow(tk.Toplevel):
             self.department_ids.append(dep.id)
             self.listbox.insert(tk.END, f"{dep.id} {dep.name} ({dep.description})")
 
+    # Similar to the above, but for the list of employees in a department
     def refresh_members(self, dep):
         self.right_listbox.delete(0, tk.END)
         self.member_employee_ids = []
@@ -190,6 +207,7 @@ class DepartmentWindow(tk.Toplevel):
         for emp_id in (dep.members or []):
             emp = self.tracker.employees.get(emp_id)
             if emp is None:
+                # error handling for a listed employee id that doesn't exist
                 self.member_employee_ids.append(emp_id)
                 self.right_listbox.insert(tk.END, f"{emp_id} (missing employee)")
             else:
@@ -197,12 +215,15 @@ class DepartmentWindow(tk.Toplevel):
                 self.right_listbox.insert(tk.END, f"{emp.id} {emp.name} ({emp.role})")
        
     
+    # Called when finished entering details for a new department, and create is clicked
     def on_create(self):
 
+        #Error handling for lack of permissions
         if not self.has_perms():
             messagebox.showerror("Create department failed", "You do not have permission to create a department")
             return
         
+        # Parse input
         try:
             data = parse_department_form(
                 self.name_entry.get(),
@@ -211,6 +232,7 @@ class DepartmentWindow(tk.Toplevel):
                 self.parent_department_entry.get(),
             )
 
+            # utlise create department method in tracker, before refreshing list, clearing form and reverting to create
             self.tracker.create_department(**data)
 
             self.refresh_list()
@@ -220,11 +242,12 @@ class DepartmentWindow(tk.Toplevel):
         except Exception as err:
             messagebox.showerror("Create department failed",str(err))
     
+    # Update method with error handling as in above method
     def on_update(self):
         if not self.has_perms():
             messagebox.showerror("Update department failed", "You do not have permission to edit a department")
             return
-        
+        # Error handling if deselected
         if self.selected_department_id is None:
             messagebox.showerror("Update department failed", "No department selected.")
             return
@@ -238,12 +261,12 @@ class DepartmentWindow(tk.Toplevel):
                 self.head_of_department_entry.get(),
                 self.parent_department_entry.get()
             )
-            
+            # Only the fields that have been changed are updated, preventing any data from being overwritten by itself unnecessarily
             if dep.name != data["name"]:
                 dep.name = data["name"]
 
             if dep.description != data["description"]:
-                dep.name = data["description"]
+                dep.description = data["description"]
 
             if dep.head_of_department != data["head_of_department"]:
                 dep.head_of_department = data["head_of_department"]
@@ -259,13 +282,14 @@ class DepartmentWindow(tk.Toplevel):
                 self.listbox.activate(idx)
             except ValueError:
                 pass
-
+            # Refreshes members and sets mode to edit
             self.set_mode_edit()
             self.refresh_members(dep)
 
         except Exception as err:
             messagebox.showerror("Update department failed", str(err))
 
+    # Delete department with similar error handling to above
     def on_delete(self):
         if not self.has_perms():
             messagebox.showerror("Delete department failed", "You do not have permission to delete a department")
@@ -285,6 +309,7 @@ class DepartmentWindow(tk.Toplevel):
         except Exception as err:
             messagebox.showerror("Delete department failed", str(err))
 
+    # When a department is selected, its info is shown in form fields, and employees are listed
     def on_select(self,event=None):
         sel = self.listbox.curselection()
         if not sel:
@@ -313,6 +338,7 @@ class DepartmentWindow(tk.Toplevel):
         self.set_mode_edit()
         self.refresh_members(dep)
 
+    # add members window is opened with correct inputs
     def open_add_members_window(self):
         if not self.has_perms(add_employee=True):
             messagebox.showerror("Add members", "You do not have permission to add members to this department.")
@@ -320,6 +346,7 @@ class DepartmentWindow(tk.Toplevel):
         if self.selected_department_id is None:
             messagebox.showerror("Add members","Select a department first.")
             return
+        # when add members reports "on_done", list is refreshed with new data
         AddMembersWindow(
             parent=self,
             tracker=self.tracker,
@@ -327,6 +354,7 @@ class DepartmentWindow(tk.Toplevel):
             on_done=self._refresh_selected_department_members
         )
 
+    # selecting an employee prepares in case of using delete
     def on_select_member(self,event=None):
         sel = self.right_listbox.curselection()
         if not sel:
@@ -336,6 +364,7 @@ class DepartmentWindow(tk.Toplevel):
         idx = sel[0]
         self.selected_employee_id = self.member_employee_ids[idx]
 
+    # remove employee calling tracker method, with error handling for permissions and missing data
     def on_remove_member(self):
         print(self.logged_in_user,self.tracker.departments[self.selected_department_id].head_of_department)
         if not self.has_perms(add_employee=True):
@@ -347,11 +376,12 @@ class DepartmentWindow(tk.Toplevel):
         if self.selected_employee_id is None:
             messagebox.showerror("Remove department member failed", "No employee selected.")
             return
-        
+        # user is asked for confirmation
         if not messagebox.askyesno("Confirm removal", "Remove this employee from the department?"):
             return
         
         try:
+            # tracker method called, list refreshed and selected employee reset
             self.tracker.departments[self.selected_department_id].remove_employee(self.selected_employee_id)
             self.refresh_members(self.tracker.departments[self.selected_department_id])
             self.selected_employee_id = None
@@ -368,7 +398,7 @@ class DepartmentWindow(tk.Toplevel):
         self.refresh_list()
         self.deselect_department()
 
-
+# For use when window is opened independently
 if __name__ == "__main__":
     tracker = Tracker()
     root = tk.Tk()

@@ -3,6 +3,7 @@ from tkinter import messagebox, ttk
 
 from employee_tracker.gui.style import centre_window
 
+# Window for updating password
 class PasswordDialog(tk.Toplevel):
     def __init__(self, parent, title = "Set Password"):
         super().__init__(parent)
@@ -42,6 +43,7 @@ class PasswordDialog(tk.Toplevel):
         self.transient(parent)
         self.grab_set()
 
+        #Keybinds for buttons
         self.bind("<Return>", lambda e: self.on_ok())
         self.bind("<Escape>", lambda e: self.on_cancel())
         
@@ -49,12 +51,13 @@ class PasswordDialog(tk.Toplevel):
 
         self.pw1.focus_set()
 
-
+        # helping centering
         if parent is not None:
             x = parent.winfo_rootx() + 50
             y = parent.winfo_rooty() + 50
             self.geometry(f"+{x}+{y}")
 
+    # when OK is pressed, fields are checked, both for existence and matching
     def on_ok(self):
         pass1 = self.pw1.get()
         pass2 = self.pw2.get()

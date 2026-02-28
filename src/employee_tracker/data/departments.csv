@@ -1,6 +1,6 @@
 id,name,description,head_of_department,parent_department,members
-dep_641641f1,Human Resources,"Hiring, onboarding, policies",emp_12b59527,,emp_12b59527 emp_f9802ae5 emp_e0ba6ddb emp_8cae19d5 emp_eab5752d
-dep_38ddd673,Engineering,Product development and systems,emp_133d2974,,emp_43392277 emp_993c7ea2 emp_a6a7764c emp_e3c1cc1b emp_87164232 emp_afd10b18 emp_133d2974 emp_5f555006
-dep_5389d09d,Finance,"Budgeting, payroll, reporting",emp_51358a87,,emp_0efb4040 emp_ee5e39e8 emp_d5284351 emp_51358a87 emp_e34c2364
-dep_2ec7d2b0,Support,Customer support operations,emp_3e6603e4,,emp_f22363fc emp_3e6603e4
-dep_82786cf5,IT Operations,"Infrastructure, support, security, networks",emp_7805c9bb,,emp_7805c9bb emp_b17a9e4a emp_0688c3b7 emp_553623c8 emp_4ebe9765
+dep_d5e574fa,Human Resources,"Hiring, onboarding, policies",emp_673342f5,,emp_673342f5 emp_a5cd8b6a emp_453e8cad emp_db643aa7 emp_688c9d25
+dep_0b179ee6,Engineering,Product development and systems,emp_c8200f6a,,emp_d5ad1319 emp_2a3dc099 emp_4417fe3b emp_212c84b4 emp_a18c5b06 emp_19d3494e emp_c8200f6a emp_a7919222
+dep_630aabe0,Finance,"Budgeting, payroll, reporting",emp_98fabb91,,emp_acd3e3ae emp_de2a5cb8 emp_9dd69d84 emp_98fabb91 emp_5f18b3a3
+dep_b5d11c59,Support,Customer support operations,emp_e485a1e7,,emp_3a7da1ec emp_e485a1e7
+dep_7a813ba0,IT Operations,"Infrastructure, support, security, networks",emp_5c272cd8,,emp_5c272cd8 emp_45d831b8 emp_cc007435 emp_30e5118f emp_ffa6ec0c

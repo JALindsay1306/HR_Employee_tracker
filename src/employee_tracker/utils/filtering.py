@@ -1,7 +1,9 @@
 from datetime import date
 
+# List filtering to be used across multiple classes, these are currently not used in the GUI
 def filter_list(list,search_parameter,value="",parameter_type="string"):
     match parameter_type:
+        # filtering is simple string, or can include ranges of numbers (max/min) 
         case "string":
             if not isinstance(value,str):
                 raise TypeError("String expected, please try again")

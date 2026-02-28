@@ -1,6 +1,7 @@
 import tkinter as tk
 from tkinter import ttk
 
+# Style setting for homogeneity throughout the app (making use of ttk)
 def apply_style(root: tk.Misc):
     style = ttk.Style(root)
 

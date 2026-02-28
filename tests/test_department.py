@@ -20,6 +20,7 @@ example_dep = Department("test","testDes",Employee(**valid_employee_kwargs()).id
 
 employee_to_use = Employee(**valid_employee_kwargs())
 
+# Values to be used in creation of classes
 def valid_department_kwargs():
     return dict(
         name="Finance",
@@ -42,18 +43,21 @@ def make_row(**overrides):
         return base
 
 class TestDepartmentCreation:
+    # Basic init check
     def test_department_can_be_created(self):
         dep = Department(**valid_department_kwargs())
         assert dep.name == "Finance"
         assert dep.description == "It's where the money is"
         assert dep.head_of_department == employee_to_use.id
         assert dep.parent_department == example_dep.id
+    # id creation check
     def test_department_id_created(self):
         with patch("employee_tracker.domain.department.new_id", return_value="dep") as mock_new_id:
             dep = Department(**valid_department_kwargs())
 
             mock_new_id.assert_called_once_with("dep")
             assert dep.id.startswith("dep")
+    # when loading, id is explicitly given, this checks new class object is as expected
     def test_department_accepts_existing_id(self):
         dep = Department(
             name="Finance",
@@ -64,6 +68,7 @@ class TestDepartmentCreation:
         assert dep.id == "dep_12345678"    
 
 class TestDepartmentTypeValidations:
+    # checking that incorrect types are rejected
     @pytest.mark.parametrize(
         "field,value,error",
         [
@@ -82,13 +87,16 @@ class TestDepartmentTypeValidations:
             Department(**kwargs)
 
 class TestDepartmentAddEmployee:
+    # checking method exists
     def test_department_has_add_employee(self):
         assert hasattr(Department,"add_employee")
+    # and works
     def test_add_employee_adds_employee_id(self):
         dep = Department(**valid_department_kwargs())
         emp1 = Employee(**valid_employee_kwargs())
         dep.add_employee(emp1)
         assert dep.members[0] == emp1.id
+    # more than once
     def test_add_amployee_adds_multiple_employees(self):
         dep = Department(**valid_department_kwargs())
         emp1 = Employee(**valid_employee_kwargs())
@@ -102,6 +110,7 @@ class TestDepartmentAddEmployee:
         dep.add_employee(emp4)
         dep.add_employee(emp5)
         assert len(dep.members) == 5
+    # type validation
     def test_does_not_accept_non_employees(self):
         dep1 = Department(**valid_department_kwargs())
         dep2 = Department(**valid_department_kwargs())
@@ -114,6 +123,7 @@ class TestDepartmentAddEmployee:
         with pytest.raises(ValueError,match=f"Employee ID {emp1.id} already in {dep.name}, cannot add again"):
             dep.add_employee(emp1)
 
+# similar pattern for other method tests
 class TestDepartmentListEmployees:
     def test_department_has_list_employees_method(self):
         assert hasattr(Department,"list_employees")

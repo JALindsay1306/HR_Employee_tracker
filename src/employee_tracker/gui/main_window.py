@@ -8,7 +8,7 @@ from employee_tracker.gui.department_window import DepartmentWindow
 from employee_tracker.gui.login_window import LoginWindow
 from employee_tracker.gui.style import apply_style, centre_window
 
-
+# Top level window
 class MainWindow:
     def __init__(self,tracker:Tracker):
         self.tracker = tracker
@@ -19,6 +19,7 @@ class MainWindow:
         self.root = tk.Tk()
         self.root.title("HR Employee Tracker")
 
+        # Ensure style is applied
         apply_style(self.root)
         centre_window(self.root,420,420)
 
@@ -38,6 +39,7 @@ class MainWindow:
         actions.grid(row=2, column=0, sticky="ew")
         actions.columnconfigure(0,weight=1)
 
+        # Links to open other windows
         self.btn_employees = ttk.Button(actions, text="Employees", command=self.open_employees)
         self.btn_departments = ttk.Button(actions, text="Departments", command=self.open_departments)
         
@@ -64,9 +66,11 @@ class MainWindow:
         self.btn_logout.grid(row=0, column=0, sticky="ew")
         self.btn_quit.grid(row=0, column=1, sticky="ew", padx=(10, 0))
 
+        # Login is automatically false, and login window is called
         self.set_logged_in(False)
         self.root.after(0,self.show_login)
 
+    # When login window is successfully used, buttons are enabled
     def set_logged_in(self,is_logged_in:bool):
         state = "normal" if is_logged_in else "disabled"
         self.btn_employees.config(state=state)
@@ -74,6 +78,7 @@ class MainWindow:
         self.btn_load.config(state=state)
         self.btn_save.config(state=state)
 
+    # Logging out disables buttons and resets window
     def logout(self):
         self.logged_in_user = None
         self.active_permissions = []
@@ -82,9 +87,11 @@ class MainWindow:
         self.set_logged_in(False)
         self.root.after(0,self.show_login)
 
+    # Opens login
     def show_login(self):
         LoginWindow(self.root, self.tracker,self.on_login_success)
 
+    # Window is refreshed when a new user logs in, permissions are stored ready for usage by other windows
     def on_login_success(self, permissions, emp_id):
         self.active_permissions = permissions or []
         self.logged_in_user = emp_id
@@ -94,14 +101,17 @@ class MainWindow:
         perms = ", ".join(self.active_permissions) if self. active_permissions else "none"
         self.status_var.set(f"signed in as {emp_id} - Permissions: {perms}")
 
+    # opening employees as a child window, ensuring part of the same app
     def open_employees(self):
         win = EmployeeWindow(self.root,self.tracker,self.active_permissions,self.logged_in_user)
         self._track_child(win)
 
+    # opening departments as a child window, ensuring part of the same app
     def open_departments(self):
         win = DepartmentWindow(self.root,self.tracker,self.active_permissions,self.logged_in_user)
         self._track_child(win)
 
+    # Calls load function within tracker. Also updates all child windows with new information
     def load(self):
         try:
             self.tracker.reload_from_storage()
@@ -112,6 +122,7 @@ class MainWindow:
         except Exception as err:
             messagebox.showerror("Load Error", err)
 
+    # calls save method of tracker
     def save(self):
         try:
             self.tracker.save_to_storage()
@@ -119,9 +130,11 @@ class MainWindow:
         except Exception as err:
             messagebox.showerror("Save Error", err)
     
+    # tk run
     def run(self):
         self.root.mainloop()
     
+    # Part of ensuring loaded changes are viewed by child windows
     def _track_child(self, w):
         self._child_windows.append(w)
         w.bind("<Destroy>", lambda e, win=w: self._untrack_child(win))
@@ -130,7 +143,9 @@ class MainWindow:
         self._child_windows = [w for w in self._child_windows if w is not win]
 
 def run_app():
+    # usese load_or_create to account for missing data
     tracker = Tracker.load_or_create_sample()
     MainWindow(tracker).run()
-
-run_app()
+    
+if __name__ == "__main__":
+    run_app()

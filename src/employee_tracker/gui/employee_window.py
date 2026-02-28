@@ -6,6 +6,8 @@ from employee_tracker.domain.tracker import Tracker
 from employee_tracker.gui.new_password import PasswordDialog
 from employee_tracker.gui.style import centre_window
 
+
+# Parsing field inputs
 def parse_employee_form(name: str, role: str, start_date_str: str, salary_str: str, address: str):
     name = name.strip()
     role = role.strip()
@@ -30,6 +32,7 @@ def parse_employee_form(name: str, role: str, start_date_str: str, salary_str: s
     
     return dict(name=name,role=role,start_date=start_date,salary=salary,address=address)
 
+# Employee window creation with a ttk style
 class EmployeeWindow(tk.Toplevel):
     def __init__(self,parent:tk.Tk,tracker,permissions=None, logged_in_user = None):
         super().__init__(parent)
@@ -76,6 +79,7 @@ class EmployeeWindow(tk.Toplevel):
         form.grid(row=1, column=0, sticky="ew")
         form.columnconfigure(0, weight=1)
 
+        # Adding fields for form
         def add_field(r, label):
             ttk.Label(form, text=label).grid(row=r, column=0, sticky="w")
             entry = ttk.Entry(form)
@@ -110,13 +114,14 @@ class EmployeeWindow(tk.Toplevel):
         self.new_button = ttk.Button(right, text="New / Deselect", command=self.deselect_employee)
         self.new_button.grid(row=3, column=0, sticky="ew", pady=(10, 0))
 
+        # Esc key deselects
         self.bind("<Escape>", lambda e: self.deselect_employee())
 
         centre_window(self, 860, 540)
         self.refresh_list()
         self.set_mode_create()
 
-
+    # calls later method to check read-write permissions, then changes form fields appropriately
     def apply_parameter_permissions(self):
         view, edit = self.parameter_view_write()
 
@@ -150,6 +155,14 @@ class EmployeeWindow(tk.Toplevel):
         apply(self.salary_entry, "salary", str(emp.salary))
         apply(self.address_entry, "address", emp.address)
 
+    # This checks permissions and sets both read and write values
+    # it_admin has all functionality
+    # hr_write can do everything except master password changes
+    # finance_edit can see and change salary
+    # hr_read can see but not change address
+    # payroll can see but not change salary
+    # regular users can only see name and role of others.
+    # regular users can see all their own details and change their own password
     def parameter_view_write(self):
         all_parameters = {"name", "role", "start_date", "salary", "address"}
 
@@ -174,20 +187,24 @@ class EmployeeWindow(tk.Toplevel):
 
         return view, edit
     
+    # More functionality to ensure that appropriate fields are editable
     def set_entry_value(self,entry: tk.Entry, value: str, editable: bool):
         entry.config(state="normal")
         entry.delete(0,tk.END)
         entry.insert(0, value)
         entry.config(state=("normal" if editable else "disabled"))
 
+    # More functionality to ensure that appropriate fields are hidden
     def set_entry_hidden(self,entry: tk.Entry, editable: bool = False):
         self.set_entry_value(entry, "Hidden", editable=editable)
     
+    # initial check for permissions
     def has_perms(self,required:list) -> bool:
         if "it_admin" in self.permissions:
             return True
         return any(permission in self.permissions for permission in required)
             
+    # Clearing of all fields
     def clear_form(self):
         self.name_entry.delete(0,tk.END)
         self.role_entry.delete(0,tk.END)
@@ -195,6 +212,7 @@ class EmployeeWindow(tk.Toplevel):
         self.salary_entry.delete(0,tk.END)
         self.address_entry.delete(0,tk.END)
 
+    # Similar to in department window, create mode
     def set_mode_create(self):
         self.selected_employee_id = None
         self.form_title_label.config(text="Create Employee")
@@ -206,6 +224,7 @@ class EmployeeWindow(tk.Toplevel):
         self.create_button.grid()
         self.apply_parameter_permissions()
 
+    # Edit/view individual departments, changing buttons appropriately
     def set_mode_edit(self):
         self.form_title_label.config(text="Edit Employee")
 
@@ -216,11 +235,13 @@ class EmployeeWindow(tk.Toplevel):
         self.new_button.grid()
         self.apply_parameter_permissions()
 
+    # Revert to create when deselecting
     def deselect_employee(self):
         self.listbox.selection_clear(0,tk.END)
         self.clear_form()
         self.set_mode_create()
 
+    # Refresh method for when changes are made
     def refresh_list(self):
         self.listbox.delete(0, tk.END)
         self.employee_ids = []
@@ -228,6 +249,7 @@ class EmployeeWindow(tk.Toplevel):
             self.employee_ids.append(emp.id)
             self.listbox.insert(tk.END, f"{emp.id} {emp.name} ({emp.role})")
 
+    # A method to open the update password method, checks that either it_admin permission is present, or that the user is editing themself
     def update_password(self):
         print(self.selected_employee_id,self.logged_in_user)
         emp_id = self.selected_employee_id
@@ -243,17 +265,20 @@ class EmployeeWindow(tk.Toplevel):
         if emp_id is None:
             messagebox.showerror("Change password failed", "No employee selected.")
             return
-        
+        # launches password and captures new hash value if successful
         pass_create = PasswordDialog(self, title="Change Password")
         password = pass_create.show()
         if password is None:
             return
         
+        # uses employee method to update hash 
         self.tracker.employees[emp_id].password_hash = password
         messagebox.showinfo("Updated","Password updated")
 
+    # Creating new employee, checks that permissions exist
     def on_create(self):
-        if not self.has_perms(["hr-write"]):
+        # checking for hr_write (has_perms always checks for it_admin regardless)
+        if not self.has_perms(["hr_write"]):
             messagebox.showerror("Create employee failed", "You do not have permission to create an Employee")
             return
         try:
@@ -283,6 +308,7 @@ class EmployeeWindow(tk.Toplevel):
         except Exception as err:
             messagebox.showerror("Create employee failed", str(err))
     
+    # updating employee information
     def on_update(self):
         if self.selected_employee_id is None:
             messagebox.showerror("Update employee failed", "No employee selected.")
@@ -294,7 +320,8 @@ class EmployeeWindow(tk.Toplevel):
             return
 
         emp = self.tracker.employees[self.selected_employee_id]
-
+        
+        # Only update fields that have been changed
         try:
             if "name" in edit:
                 name = self.name_entry.get().strip()
@@ -344,6 +371,7 @@ class EmployeeWindow(tk.Toplevel):
         except Exception as err:
             messagebox.showerror("Update employee failed", str(err))
 
+    # remove employee, checking permissions
     def on_delete(self):
         if not self.has_perms(["hr_write"]):
             messagebox.showerror("Delete employee failed", "You do not have permission to delete employees.")
@@ -362,6 +390,7 @@ class EmployeeWindow(tk.Toplevel):
         except Exception as err:
             messagebox.showerror("Delete employee failed", str(err))
 
+    # switching to edit mode when employee created
     def on_select(self,event=None):
         sel = self.listbox.curselection()
         if not sel:
@@ -376,7 +405,7 @@ class EmployeeWindow(tk.Toplevel):
         self.refresh_list()
         self.deselect_employee()
 
-
+# for use when loaded independently
 if __name__ == "__main__":
     tracker = Tracker()
     root = tk.Tk()

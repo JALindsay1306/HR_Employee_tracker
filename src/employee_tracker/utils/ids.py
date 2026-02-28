@@ -1,10 +1,11 @@
 import uuid
 
+# Creates an id, with a passed prefix, followed by an underscore and an 8 digit hex number
 def new_id(prefix: str) -> str:
     return f"{prefix}_{uuid.uuid4().hex[:8]}"
 
-print (new_id("ID"))
 
+# checks that passed ID matches the correct pattern (both prefix and hex number)
 def check_id(id,prefix):
     if not isinstance(id,str):
         return False

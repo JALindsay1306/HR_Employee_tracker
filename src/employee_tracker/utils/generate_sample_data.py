@@ -3,6 +3,7 @@ from datetime import date
 from employee_tracker.domain.tracker import Tracker
 from employee_tracker.storage.storage import DATA_DIR
 
+# Simple utility that prepopulates any missing csv files so that program can be run easily without error
 
 def generate_sample_data() -> Tracker:
     tracker = Tracker()

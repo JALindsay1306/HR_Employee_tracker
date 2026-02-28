@@ -1,10 +1,26 @@
 id,name,role,start_date,salary,address,password_hash,permissions
-emp_ee13f506,James,Creator,2024-10-02,30000,"123 Lane, Town, County",zXl7n7B2cF9ZzC6bX5mJ8sQ2k1pLr4vTtYw9aBcDeFgHiJkLmNoPqRsTuVwXyZ12,
-emp_cc51d914,James,Creator,2024-10-02,30000,"123 Lane, Town, County",zXl7n7B2cF9ZzC6bX5mJ8sQ2k1pLr4vTtYw9aBcDeFgHiJkLmNoPqRsTuVwXyZ12,
-emp_b6bdcf8e,James,Creator,2024-10-02,30000,"123 Lane, Town, County",zXl7n7B2cF9ZzC6bX5mJ8sQ2k1pLr4vTtYw9aBcDeFgHiJkLmNoPqRsTuVwXyZ12,
-emp_dea0d20a,James,Creator,2024-10-02,30000,"123 Lane, Town, County",zXl7n7B2cF9ZzC6bX5mJ8sQ2k1pLr4vTtYw9aBcDeFgHiJkLmNoPqRsTuVwXyZ12,
-emp_31391dc0,James,Creator,2024-10-02,30000,"123 Lane, Town, County",zXl7n7B2cF9ZzC6bX5mJ8sQ2k1pLr4vTtYw9aBcDeFgHiJkLmNoPqRsTuVwXyZ12,
-emp_d4265a2e,James,Creator,2024-10-02,30000,"123 Lane, Town, County",zXl7n7B2cF9ZzC6bX5mJ8sQ2k1pLr4vTtYw9aBcDeFgHiJkLmNoPqRsTuVwXyZ12,
-emp_4ad63f5b,James,Creator,2024-10-02,30000,"123 Lane, Town, County",zXl7n7B2cF9ZzC6bX5mJ8sQ2k1pLr4vTtYw9aBcDeFgHiJkLmNoPqRsTuVwXyZ12,
-emp_f51cae52,James,Creator,2024-10-02,30000,"123 Lane, Town, County",zXl7n7B2cF9ZzC6bX5mJ8sQ2k1pLr4vTtYw9aBcDeFgHiJkLmNoPqRsTuVwXyZ12,
-emp_d491075a,James,Creator,2024-10-02,30000,"123 Lane, Town, County",zXl7n7B2cF9ZzC6bX5mJ8sQ2k1pLr4vTtYw9aBcDeFgHiJkLmNoPqRsTuVwXyZ12,
+emp_673342f5,Alice Johnson,HR Manager,2021-04-12,52000,"10 King Street, London",6G/tdAld9NEucQQDnJjy+zw7Stw2qjRE2XAwBXl86/RA7OnKv7BOfY4nqyoQh3G6,hr_read hr_write
+emp_d5ad1319,Ben Carter,Software Engineer,2022-09-05,65000,"22 Baker Street, London",AC4VZ8CLpxSiLN52HTcwxWkgMnTs936kMd5DYh0dFHXuNc73PMo1vSIHYjYZ/35F,it_admin
+emp_acd3e3ae,Chloe Singh,Payroll Specialist,2020-01-20,48000,"18 High Road, Croydon",xbj51Mq6xb8T2UrUhcmczjxdBY5rgveEf2NMY97njoMBA0+La1gEWtr96b1p/Z+9,payroll hr_read
+emp_3a7da1ec,Daniel Evans,Customer Support,2023-02-01,32000,"3 Station Road, Watford",u0RG6dhC8aHrlCV3fkSHbiEDm2j4Ivnt6szmq2BvWyrsVGvPOk7S0Uc1XG5Dp9HT,
+emp_de2a5cb8,Evelyn Brown,Finance Analyst,2021-11-15,56000,"77 Queensway, London",ubnqCvNmGLrOik9bxmozzOROc5sbuOsI2ghNvi1gFzxjQSxq7b6m4dax8NKE1TEM,payroll
+emp_2a3dc099,Frank Mitchell,Backend Developer,2020-06-08,68000,"14 Elm Street, Manchester",Mqefl9oREMk9J2oHa7mcrKYFPDouAJixXvMRHJdlk6MWVxBh77mx0hftjAHTUgLb,it_admin
+emp_a5cd8b6a,Grace Turner,Recruitment Officer,2022-03-14,45000,"22 Victoria Road, Birmingham",fPkpsyLLeIEFz+/f3p357htF/1M6ujx3ubURZlzBwF5CoA+ygRfqpMYmg/RLg8wr,hr_read
+emp_4417fe3b,Hannah Patel,Data Analyst,2021-09-30,59000,"5 Riverside Drive, Leeds",9ESmVLKqH1m21TmX2a77FIwxrzEodP11GUUr8XVVga+B8kKtwL6u6MlUVyhGGgru,it_admin
+emp_5c272cd8,Ian Robertson,Systems Administrator,2019-11-18,72000,"31 Hill Lane, Bristol",syfT+IGHT+KVRXjjWhnH/baF5zfEsfodS/oVyFcP1LV0otuayAzTHuh+ZXggLIdF,it_admin
+emp_9dd69d84,Jasmine Clark,Payroll Assistant,2023-01-09,40000,"9 Oak Avenue, Liverpool",pqLkswFoWI+UvlqY+fe8n8YUjPxuOsbRkki8oPnjq07YVQCJQGhoENyTCqIjwuIT,payroll
+emp_45d831b8,Kevin O'Neill,DevOps Engineer,2020-08-03,70000,"18 Park Crescent, Nottingham",D5aKBy3mBcPxdnhpZW8XU+6ymIeoUmjJfiovii7SHwQAGE5D85vM5bm7xMF6saCw,it_admin
+emp_453e8cad,Laura Simmons,HR Advisor,2021-05-21,48000,"44 Maple Street, Sheffield",ooGjsX+luHwXTCJ8vTPDgPbFwpNhXmB5MhkpTaLcA5jJALZNEPfdT5guhFgzguNa,hr_read hr_write
+emp_212c84b4,Marcus Reed,Frontend Developer,2022-07-12,63000,"7 Grove Lane, Oxford",bqjoCiu3XIVrjwGOeasIFGJotopjRUVb5JNdwtC4NanFvDOdx9ejqMobBypgol4T,it_admin
+emp_98fabb91,Natalie Hughes,Financial Controller,2018-04-02,82000,"11 Harbour Road, Southampton",hCoxO9BvyZe9LPr85pmI7p2Vcqia7oPQaaeIENcg2JkupQhWPhlnDDpsgHPyMKun,finance_edit
+emp_cc007435,Oliver Grant,IT Support Technician,2023-06-05,35000,"62 Brook Street, Leicester",ACIwbbtDq1x7nUKMmfNDpSP664ZWnntzp+4iSEx6YeFvC6rFNKIn/Rjte0e3OAt8,it_admin
+emp_a18c5b06,Priya Shah,Business Analyst,2020-02-17,61000,"27 Station Road, Reading",yPUmSOwTQ1Qm5yf8oRFs83pv6H9frfC+vjjq+o/+d6ZzPea5sQrP88kGG7uyjpMH,hr_read
+emp_30e5118f,Quentin Moore,Security Engineer,2019-10-28,75000,"3 Mill Lane, Cambridge",1xCainJrsqubmJLeLBrZ12/gHWw/ocHzASvnTqjL6xp8/CAcWUvg+HxH8ZVvqZui,it_admin
+emp_e485a1e7,Rachel Adams,Customer Success Manager,2021-12-01,54000,"88 Market Street, York",nLhRzBh0cinf40YP6NIoK+dmMwcwPT17zSvb2FluUbeb5VwQrUk+iwdaOcZU4+cm,
+emp_5f18b3a3,Samuel Davies,Accountant,2017-09-19,60000,"16 Bridge Road, Cardiff",jmYhlAA8JOlKIrYxx2NcAGn0YIDwPVhtVdzX/mRY3w7ZH4lmveHZInqEJLnISH6A,payroll
+emp_19d3494e,Tara Wilson,UX Designer,2022-04-25,58000,"29 Queen Street, Newcastle",B39Oqmplxmeb/1NwwscNWPiXQhu4lcbuqfvN/TLmlm/EhzeQsy19fzFhxKWwvgmA,
+emp_c8200f6a,Umar Khan,Technical Architect,2016-03-07,90000,"2 Kingsway, Edinburgh",HiqFmAO+MEMLjDeLYZaPW63YfmO5qBu2iEEW7J71Hjq5DiHhv+LKaAxAcuZqb6RJ,
+emp_db643aa7,Victoria Lewis,HR Administrator,2023-08-14,38000,"13 Chapel Street, Coventry",kGPNrkIvIOy9D45zvBVcFN44tXbvcIsywkndtQwFxSaAVreifT9xzjwPCvmmZqsG,hr_read
+emp_a7919222,William Scott,Product Manager,2020-11-23,77000,"40 City Road, Glasgow",RfcYvohBGEgBRPcxa76OugXiQt+BlP6lbBrQxir9yAcyvOOTj07M+7iQPu+JGxws,
+emp_688c9d25,Xenia Brooks,Compliance Officer,2019-01-15,62000,"6 Manor Close, Plymouth",LljXnBrEQs4MA4V+i+tt84D3NRevR3JD446sA2TqVg1R5FBLE+XccUzE7ngipN7k,hr_read payroll
+emp_ffa6ec0c,Yusuf Ali,Network Engineer,2021-07-06,69000,"55 Green Lane, Derby",KDx6lX6IqvxcL0UCTtVH+mMAOEBSkBUqa5kCk2vS/hObwO4Tn2hiMlOK2yHUj5Ux,it_admin
